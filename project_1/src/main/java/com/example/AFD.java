@@ -1,41 +1,42 @@
 import java.util.HashMap;
+import java.util.List;
 
 public class AFD {
-    private tree_info String[];
-    private functions_table HashMap[];
-    private transitions_table HashMap[];
+    private String[] tree_info;
+    private List<Nodo> functions_table;
+    private HashMap[] transitions_table;
 
-    AFD() {
+    public AFD() {
         tree_info = new String[];
         functions_table = new HashMap;
         transitions_table = new HashMap;
     }
 
-    public tree_info[] getString() {
-        return String;
+    public String[] getTree_info() {
+        return tree_info;
     }
 
-    public void setString(tree_info[] string) {
-        String = string;
+    public void setTree_info(String[] tree_info) {
+        this.tree_info = tree_info;
     }
 
-    public functions_table[] getHashMap() {
-        return HashMap;
+    public List<Nodo> getFunctions_table() {
+        return functions_table;
     }
 
-    public void setHashMap(functions_table[] hashMap) {
-        HashMap = hashMap;
+    public void setFunctions_table(List<Nodo> functions_table) {
+        this.functions_table = functions_table;
     }
 
-    public functions_table[] getHashMap() {
-        return HashMap;
+    public HashMap[] getTransitions_table() {
+        return transitions_table;
     }
 
-    public void setHashMap(functions_table[] hashMap) {
-        HashMap = hashMap;
+    public void setTransitions_table(HashMap[] transitions_table) {
+        this.transitions_table = transitions_table;
     }
 
-    public static boolean esAlfanumerico(String str) {
+    public static boolean isAlphanumeric(String str) {
         return str.matches("[a-zA-Z0-9]+");
     }
 
@@ -46,7 +47,7 @@ public class AFD {
 
     private void check_calculated_functions() {
         for (int i = 0; i < tree_info.length(); i++) {
-            if (esAlfanumerico(value)) {
+            if (isAlphanumeric(value)) {
 
             }
         }
@@ -57,7 +58,7 @@ public class AFD {
 
     }
 
-    public void main(String args[]) {
+    public static void main(String[] args) {
         String[] try_tree = [., [., [., [., [*, [|, [a, b]], a], b], b], #]];
         read_tree(try_tree);
 
