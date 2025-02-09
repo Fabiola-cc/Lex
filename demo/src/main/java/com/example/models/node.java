@@ -1,14 +1,26 @@
 package com.example.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class node {
     private boolean isNullable;
     private boolean isAlphanumeric;
     private Character value;
     private String name;
-    private Integer[] nodes; // Contiene los índices de los 'hijos' (para operadores)
-    private Integer[] firstpos;
-    private Integer[] lastpos;
-    private Integer[] followtpos;
+    private ArrayList<Integer> nodes; // Contiene los índices de los 'hijos' (para operadores)
+    private List<String> firstpos;
+    private List<String> lastpos;
+    private List<String> followpos;
+
+    public node(Character value, boolean isAlphanumeric) {
+        this.value = value;
+        this.isAlphanumeric = isAlphanumeric;
+        this.nodes = new ArrayList<Integer>();
+        this.firstpos = new ArrayList<String>();
+        this.followpos = new ArrayList<String>();
+        this.lastpos = new ArrayList<String>();
+    }
 
     public boolean isNullable() {
         return isNullable;
@@ -42,35 +54,35 @@ public class node {
         this.name = name;
     }
 
-    public Integer[] getNodes() {
+    public ArrayList<Integer> getNodes() {
         return nodes;
     }
 
-    public void setNodes(Integer[] nodes) {
+    public void setNodes(ArrayList<Integer> nodes) {
         this.nodes = nodes;
     }
 
-    public Integer[] getFirstpos() {
+    public List<String> getFirstpos() {
         return firstpos;
     }
 
-    public void setFirstpos(Integer[] firstpos) {
+    public void setFirstpos(List<String> firstpos) {
         this.firstpos = firstpos;
     }
 
-    public Integer[] getLastpos() {
+    public List<String> getLastpos() {
         return lastpos;
     }
 
-    public void setLastpos(Integer[] lastpos) {
+    public void setLastpos(List<String> lastpos) {
         this.lastpos = lastpos;
     }
 
-    public Integer[] getFollowtpos() {
-        return followtpos;
+    public List<String> getfollowpos() {
+        return followpos;
     }
 
-    public void setFollowtpos(Integer[] followtpos) {
-        this.followtpos = followtpos;
+    public void setfollowpos(List<String> followpos) {
+        this.followpos = followpos;
     }
 }
