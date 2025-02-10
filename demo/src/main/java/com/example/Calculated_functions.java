@@ -94,7 +94,7 @@ public class Calculated_functions {
                 List<String> sp = AFD.getTree_info().get(hijo2).getFirstpos();
 
                 for (String lp1 : AFD.getTree_info().get(hijo1).getLastpos()) {
-                    int lp = getTreeIndex(lp1);
+                    int lp = AFD.getTreeIndex(lp1);
                     if (lp >= 0) {
                         AFD.getTree_info().get(lp).getfollowpos().addAll(sp);
                     }
@@ -105,7 +105,7 @@ public class Calculated_functions {
                 List<String> np = AFD.getTree_info().get(hijo).getFirstpos();
 
                 for (String lp1 : AFD.getTree_info().get(hijo).getLastpos()) {
-                    int lp = getTreeIndex(lp1);
+                    int lp = AFD.getTreeIndex(lp1);
                     if (lp >= 0) {
                         AFD.getTree_info().get(lp).getfollowpos().addAll(np);
                     }
@@ -114,16 +114,6 @@ public class Calculated_functions {
             default:
                 return;
         }
-    }
-
-    public static int getTreeIndex(String elementName) {
-        for (node node : AFD.getTree_info()) {
-            if (node.getName().equals(elementName)) {
-                return AFD.getTree_info().indexOf(node);
-            }
-        }
-        System.err.println("ERROR: no se encontró el nodo dado");
-        return -1;
     }
 
     public static Boolean isNullable(node element) {
