@@ -64,9 +64,6 @@ public class ShuntingYard {
             } else if (!isOperator || c.equals("(")) {
                 if (needsConcatenation) {
                     output.add(new RegexToken("‧", true)); // Agregamos concatenación implícita
-                    if (i + 1 < regex.length() && !OPERATORS.contains(String.valueOf(regex.charAt(i + 1)))) {
-                        output.add(new RegexToken("‧", true)); // Agregar concatenación implícita después de "+"
-                    }
                 }
                 output.add(token);
                 needsConcatenation = true;
@@ -80,6 +77,10 @@ public class ShuntingYard {
 
             if (c.equals("*") || c.equals("+")) {
                 needsConcatenation = true;
+            }
+
+            if (c.equals("*") && String.valueOf(regex.charAt(i + 1)).equals("[")) {
+                output.add(new RegexToken("‧", true));
             }
 
         }
