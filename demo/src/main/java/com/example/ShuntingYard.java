@@ -79,7 +79,7 @@ public class ShuntingYard {
                 needsConcatenation = true;
             }
 
-            if (c.equals("*") && String.valueOf(regex.charAt(i + 1)).equals("[")) {
+            if (i + 1 < regex.length() && String.valueOf(regex.charAt(i + 1)).equals("[")) {
                 output.add(new RegexToken("‧", true));
             }
 
