@@ -1,63 +1,87 @@
 package com.example;
-import com.example.models.RegexToken;
-
-import javax.sound.midi.Soundbank;
 import java.util.*;
 
-public class ShuntingYard {
-    private static final Set<Character> OPERATORS = Set.of('|', '*', '+', '‧');
+import com.example.models.RegexToken;
 
-    private static final Map<Character, Integer> PRECEDENCE = Map.of(
-            '|', 1,  // Unión
-            '.', 2,  // Concatenación
-            '*', 3,  // Cierre de Kleene
-            '+', 3 // Una o más repeticiones
+public class ShuntingYard {
+    private static final Set<String> OPERATORS = Set.of("|", "*", "+", "‧");
+
+    private static final Map<String, Integer> PRECEDENCE = Map.of(
+            "|", 1,  // Unión
+            "‧", 2,  // Concatenación
+            "*", 3,  // Cierre de Kleene
+            "+", 4   // Una o más repeticiones
     );
 
     public static List<RegexToken> convertToArray(String regex) {
         List<RegexToken> output = new ArrayList<>();
+        boolean needsConcatenation = false; // Indica si hay que agregar "‧"
 
         for (int i = 0; i < regex.length(); i++) {
-            char c = regex.charAt(i);
+            String c = String.valueOf(regex.charAt(i));
             boolean isOperator = OPERATORS.contains(c);
             RegexToken token = new RegexToken(c, isOperator);
 
-            if (c == '[') {
-                StringBuilder brakets = new StringBuilder();
-                while (i + 1 < regex.length() && regex.charAt(i + 1) != ']') {
-                    i++;
-                    brakets.append(regex.charAt(i));
+            if (c.equals("[")) {
+                String content = extractBracketContent(regex, i);
+                if (i + 5 < regex.length() && regex.charAt(i + 5) == '#') {
+                    String range2 = extractBracketContent(regex, i + 6);
+                    calculateRangeDifference(content, range2, output);
+                    i += 10;
+                    needsConcatenation = true;
                 }
-
-                if (i + 1 < regex.length() && regex.charAt(i + 1) == ']') {
-                    i++;
-                } else {
-                    throw new IllegalArgumentException("Error: Falta el cierre ']' en la expresión regular.");
+                else {
+                    expandRegex(content, output);
+                    i += content.length() + 1;
+                    needsConcatenation = true;
                 }
-                expandRegex(brakets.toString(), output);
-            }
-            else if (c == '\\'){
-                char literal = regex.charAt(i + 1);
+            } else if (c.equals("\\")) {
+                String literal = String.valueOf(regex.charAt(i + 1));
+                if (needsConcatenation) {
+                    output.add(new RegexToken("‧", true));
+                }
                 output.add(new RegexToken(literal, false));
                 i++;
-            }
-            else if (c == '?'){
+                needsConcatenation = true;
+            } else if (c.equals("^")) {
+                String next = String.valueOf(regex.charAt(i + 1));
+                if (next.equals("[")) {
+                    String content = extractBracketContent(regex, i + 1);
+                    expandRegexNegation(content, output);
+                    i = i + content.length() + 2;
+                } else {
+                    output.add(new RegexToken("^"+ next, false));
+                    i++;
+                }
+                output.add(new RegexToken("‧", true));
+            } else if (c.equals("?")){
                 output.remove(output.size() - 1);
-                output.add(new RegexToken('(', true));
-                output.add(new RegexToken(regex.charAt(i - 1), false));
-                output.add(new RegexToken('|', true));
-                output.add(new RegexToken('\0', false));
-                output.add(new RegexToken(')', true));
-            }
-            else if (!isOperator) {
-                if (!output.isEmpty() && !output.get(output.size() - 1).getIsOperator()) {
-                    output.add(new RegexToken('‧', true)); // Agregamos el operador de concatenación
+                output.add(new RegexToken("(", true));
+                output.add(new RegexToken(String.valueOf(regex.charAt(i - 1)), false));
+                output.add(new RegexToken("|", true));
+                output.add(new RegexToken("\0", false));
+                output.add(new RegexToken(")", true));
+            } else if (!isOperator || c.equals("(")) {
+                if (needsConcatenation) {
+                    output.add(new RegexToken("‧", true)); // Agregamos concatenación implícita
+                    if (i + 1 < regex.length() && !OPERATORS.contains(String.valueOf(regex.charAt(i + 1)))) {
+                        output.add(new RegexToken("‧", true)); // Agregar concatenación implícita después de "+"
+                    }
                 }
                 output.add(token);
-            }
-            else if (isOperator) {
+                needsConcatenation = true;
+            } else if (c.equals(")")) {
                 output.add(token);
+                needsConcatenation = true;
+            } else {
+                output.add(token);
+                needsConcatenation = false; // No concatenar después de operadores `|`, `*`, `+`
             }
+
+            if (c.equals("*") || c.equals("+")) {
+                needsConcatenation = true;
+            }
+
         }
         return output;
     }
@@ -66,32 +90,19 @@ public class ShuntingYard {
         List<RegexToken> output = new ArrayList<>();
         Stack<RegexToken> operatorStack = new Stack<>();
 
-        for (int i = 0; i < infix.size(); i++) {
-            RegexToken token = infix.get(i);
-            char c = token.getValue();
+        for (RegexToken token : infix) {
+            String c = token.getValue();
 
             if (!token.getIsOperator()) {
-                // Si el token es un operando (carácter normal), lo añadimos al resultado
-                output.add(token);
-            } else if (c == '(') {
-                // Si el token es un paréntesis izquierdo, lo añadimos a la pila
+                output.add(token); // Agregar operandos directamente al resultado
+            } else if (c.equals("(")) {
                 operatorStack.push(token);
-            } else if (c == ')') {
-                // Si el token es un paréntesis derecho, sacamos de la pila hasta encontrar '('
-                while (!operatorStack.isEmpty() && operatorStack.peek().getValue() != '(') {
+            } else if (c.equals(")")) {
+                while (!operatorStack.isEmpty() && !operatorStack.peek().getValue().equals("(")) {
                     output.add(operatorStack.pop());
                 }
-                operatorStack.pop(); // Descartar el paréntesis izquierdo '('
-            } else if (c == '‧') {  // Si es el operador de concatenación
-                // Aquí no necesitamos un control especial para concatenación,
-                // porque es implícito entre dos operandos.
-                while (!operatorStack.isEmpty() &&
-                        PRECEDENCE.getOrDefault(operatorStack.peek().getValue(), 0) >= PRECEDENCE.getOrDefault(c, 0)) {
-                    output.add(operatorStack.pop());
-                }
-                operatorStack.push(token);
+                operatorStack.pop(); // Eliminar el paréntesis izquierdo
             } else {
-                // Si es otro operador, procesamos en base a su precedencia
                 while (!operatorStack.isEmpty() &&
                         PRECEDENCE.getOrDefault(operatorStack.peek().getValue(), 0) >= PRECEDENCE.getOrDefault(c, 0)) {
                     output.add(operatorStack.pop());
@@ -100,7 +111,6 @@ public class ShuntingYard {
             }
         }
 
-        // Finalmente, vaciamos la pila
         while (!operatorStack.isEmpty()) {
             output.add(operatorStack.pop());
         }
@@ -108,45 +118,126 @@ public class ShuntingYard {
         return output;
     }
 
-
-    public static void expandRegex(String regexReference, List<RegexToken> output){
+    public static void expandRegex(String regexReference, List<RegexToken> output) {
         int i = 0;
         while (i < regexReference.length()) {
-            char c = regexReference.charAt(i);
+            String c = String.valueOf(regexReference.charAt(i));
 
-            // Detectar un rango (ej. "a-z")
             if (i + 2 < regexReference.length() && regexReference.charAt(i + 1) == '-') {
-                char start = c;
-                char end = regexReference.charAt(i + 2);
+                String start = String.valueOf(regexReference.charAt(i));
+                String end = String.valueOf(regexReference.charAt(i + 2));
 
-                if (start > end) {
+                if (start.compareTo(end) > 0) {
                     throw new IllegalArgumentException("Rango inválido: " + regexReference);
                 }
 
-                // Agregar el operador '(' antes del grupo
-                output.add(new RegexToken('(', true));
+                output.add(new RegexToken("(", true));
 
-                // Expandir el rango en la lista
-                for (char ch = start; ch <= end; ch++) {
-                    output.add(new RegexToken(ch, false)); // Es un carácter normal
+                for (char ch = start.charAt(0); ch <= end.charAt(0); ch++) {
+                    output.add(new RegexToken(String.valueOf(ch), false));
 
-                    // Agregar '|', excepto en el último carácter
-                    if (ch < end) {
-                        output.add(new RegexToken('|', true)); // Es un operador
+                    if (ch < end.charAt(0)) {
+                        output.add(new RegexToken("|", true));
                     }
                 }
 
-                // Agregar el operador ')' al final del grupo
-                output.add(new RegexToken(')', true));
+                output.add(new RegexToken(")", true));
 
-                i += 3; // Saltamos el rango completo
+                i += 3;
             } else {
-                // Agregar caracteres individuales
                 output.add(new RegexToken(c, false));
                 i++;
             }
         }
     }
+
+    public static void expandRegexNegation(String regexReference, List<RegexToken> output) {
+        int i = 0;
+        while (i < regexReference.length()) {
+            String c = String.valueOf(regexReference.charAt(i));
+
+            if (i + 2 < regexReference.length() && regexReference.charAt(i + 1) == '-') {
+                String start = String.valueOf(regexReference.charAt(i));
+                String end = String.valueOf(regexReference.charAt(i + 2));
+
+                if (start.compareTo(end) > 0) {
+                    throw new IllegalArgumentException("Rango inválido: " + regexReference);
+                }
+
+                output.add(new RegexToken("(", true));
+
+                for (char ch = start.charAt(0); ch <= end.charAt(0); ch++) {
+                    output.add(new RegexToken("^"+ String.valueOf(ch), false));
+
+                    if (ch < end.charAt(0)) {
+                        output.add(new RegexToken("|", true));
+                    }
+                }
+
+                output.add(new RegexToken(")", true));
+
+                i += 3;
+            } else {
+                output.add(new RegexToken(c, false));
+                i++;
+            }
+        }
+    }
+
+
+    private static String extractBracketContent(String regex, int startIndex) {
+        StringBuilder brackets = new StringBuilder();
+        int i = startIndex;
+
+        while (i + 1 < regex.length() && regex.charAt(i + 1) != ']') {
+            i++;
+            brackets.append(regex.charAt(i));
+        }
+
+        if (i + 1 < regex.length() && regex.charAt(i + 1) == ']') {
+            return brackets.toString();
+        } else {
+            throw new IllegalArgumentException("Error: Falta el cierre ']' en la expresión regular.");
+        }
+    }
+
+    public static void calculateRangeDifference(String range1, String range2, List<RegexToken> output) {
+        // Convertimos los rangos en listas de caracteres
+        char start1 = range1.charAt(0);  // Inicia el primer rango
+        char end1 = range1.charAt(2);    // Termina el primer rango
+        char start2 = range2.charAt(0);  // Inicia el segundo rango
+        char end2 = range2.charAt(2);    // Termina el segundo rango
+
+        output.add(new RegexToken("(", true));
+        // Generamos los caracteres del primer rango
+        Set<Character> range1Set = new HashSet<>();
+        for (char c = start1; c <= end1; c++) {
+            range1Set.add(c);
+        }
+
+        // Generamos los caracteres del segundo rango
+        Set<Character> range2Set = new HashSet<>();
+        for (char c = start2; c <= end2; c++) {
+            range2Set.add(c);
+        }
+
+        // Calculamos la diferencia entre los dos rangos
+        range1Set.removeAll(range2Set);
+
+        // Agregamos los caracteres restantes al output
+        boolean first = true;
+        for (char c : range1Set) {
+            if (!first) {
+                output.add(new RegexToken("|", true));  // Concatenamos con |
+            }
+            output.add(new RegexToken(String.valueOf(c), false));  // Agregamos el carácter al output
+            first = false;
+        }
+        output.add(new RegexToken(")", true));
+    }
+
+
+
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -169,4 +260,5 @@ public class ShuntingYard {
             System.out.print(token.getValue());
         }
     }
+
 }
