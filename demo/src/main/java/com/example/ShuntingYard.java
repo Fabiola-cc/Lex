@@ -61,15 +61,18 @@ public class ShuntingYard {
                 output.add(new RegexToken("|", true));
                 output.add(new RegexToken("\0", false));
                 output.add(new RegexToken(")", true));
-            } else if (!isOperator || c.equals("(")) {
+            } else if (!isOperator) {
                 if (needsConcatenation) {
                     output.add(new RegexToken("‧", true)); // Agregamos concatenación implícita
+                } if (c.equals("(")) {
+                    output.add(new RegexToken(c, true));
+                } else if (c.equals(")")) {
+                    output.add(new RegexToken(c, true));
+                    needsConcatenation = true;
+                } else {
+                    output.add(token);
                 }
-                output.add(token);
-                needsConcatenation = true;
-            } else if (c.equals(")")) {
-                output.add(token);
-                needsConcatenation = true;
+                needsConcatenation = false;
             } else {
                 output.add(token);
                 needsConcatenation = false; // No concatenar después de operadores `|`, `*`, `+`
