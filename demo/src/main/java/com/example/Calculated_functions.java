@@ -17,23 +17,23 @@ public class Calculated_functions {
         switch (nodeValue) {
             case '|':
                 for (int hijo : element.getNodes()) {
-                    result.addAll(getFirstPos(AFD.getTree_info().get(hijo)));
+                    result.addAll(getFirstPos(Direct_AFD.getTree_info().get(hijo)));
                 }
                 return result;
             case '‧':
-                node condition = AFD.getTree_info().get(element.getNodes().get(0));
+                node condition = Direct_AFD.getTree_info().get(element.getNodes().get(0));
                 if (condition.isNullable()) {
                     for (int hijo : element.getNodes()) {
-                        result.addAll(getFirstPos(AFD.getTree_info().get(hijo)));
+                        result.addAll(getFirstPos(Direct_AFD.getTree_info().get(hijo)));
                     }
                 } else {
                     int hijo = element.getNodes().get(0);
-                    result.addAll(getFirstPos(AFD.getTree_info().get(hijo)));
+                    result.addAll(getFirstPos(Direct_AFD.getTree_info().get(hijo)));
                 }
                 return result;
             case '*':
                 int hijo = element.getNodes().get(0);
-                result.addAll(getFirstPos(AFD.getTree_info().get(hijo)));
+                result.addAll(getFirstPos(Direct_AFD.getTree_info().get(hijo)));
                 return result;
             default:
                 if (element.isAlphanumeric()) {
@@ -54,23 +54,23 @@ public class Calculated_functions {
         switch (nodeValue) {
             case '|':
                 for (int hijo : element.getNodes()) {
-                    result.addAll(getLastPos(AFD.getTree_info().get(hijo)));
+                    result.addAll(getLastPos(Direct_AFD.getTree_info().get(hijo)));
                 }
                 return result;
             case '‧':
-                node condition = AFD.getTree_info().get(element.getNodes().get(1));
+                node condition = Direct_AFD.getTree_info().get(element.getNodes().get(1));
                 if (condition.isNullable()) {
                     for (int hijo : element.getNodes()) {
-                        result.addAll(getLastPos(AFD.getTree_info().get(hijo)));
+                        result.addAll(getLastPos(Direct_AFD.getTree_info().get(hijo)));
                     }
                 } else {
                     int hijo = element.getNodes().get(1);
-                    result.addAll(getLastPos(AFD.getTree_info().get(hijo)));
+                    result.addAll(getLastPos(Direct_AFD.getTree_info().get(hijo)));
                 }
                 return result;
             case '*':
                 int hijo = element.getNodes().get(0);
-                result.addAll(getLastPos(AFD.getTree_info().get(hijo)));
+                result.addAll(getLastPos(Direct_AFD.getTree_info().get(hijo)));
                 return result;
             default:
                 if (element.isAlphanumeric()) {
@@ -91,23 +91,23 @@ public class Calculated_functions {
             case '‧':
                 int hijo1 = element.getNodes().get(0);
                 int hijo2 = element.getNodes().get(1);
-                List<String> sp = AFD.getTree_info().get(hijo2).getFirstpos();
+                List<String> sp = Direct_AFD.getTree_info().get(hijo2).getFirstpos();
 
-                for (String lp1 : AFD.getTree_info().get(hijo1).getLastpos()) {
-                    int lp = AFD.getTreeIndex(lp1);
+                for (String lp1 : Direct_AFD.getTree_info().get(hijo1).getLastpos()) {
+                    int lp = Direct_AFD.getTreeIndex(lp1);
                     if (lp >= 0) {
-                        AFD.getTree_info().get(lp).getfollowpos().addAll(sp);
+                        Direct_AFD.getTree_info().get(lp).getfollowpos().addAll(sp);
                     }
                 }
                 break;
             case '*':
                 int hijo = element.getNodes().get(0);
-                List<String> np = AFD.getTree_info().get(hijo).getFirstpos();
+                List<String> np = Direct_AFD.getTree_info().get(hijo).getFirstpos();
 
-                for (String lp1 : AFD.getTree_info().get(hijo).getLastpos()) {
-                    int lp = AFD.getTreeIndex(lp1);
+                for (String lp1 : Direct_AFD.getTree_info().get(hijo).getLastpos()) {
+                    int lp = Direct_AFD.getTreeIndex(lp1);
                     if (lp >= 0) {
-                        AFD.getTree_info().get(lp).getfollowpos().addAll(np);
+                        Direct_AFD.getTree_info().get(lp).getfollowpos().addAll(np);
                     }
                 }
                 break;
@@ -122,12 +122,12 @@ public class Calculated_functions {
         switch (nodeValue) {
             case '|':
                 for (int hijo : element.getNodes()) {
-                    result = result || isNullable(AFD.getTree_info().get(hijo));
+                    result = result || isNullable(Direct_AFD.getTree_info().get(hijo));
                 }
                 return result;
             case '‧':
                 for (int hijo : element.getNodes()) {
-                    result = result && isNullable(AFD.getTree_info().get(hijo));
+                    result = result && isNullable(Direct_AFD.getTree_info().get(hijo));
                 }
                 return result;
             case '*':
