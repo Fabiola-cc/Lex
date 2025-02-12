@@ -22,7 +22,8 @@ public class Calculate_tree {
   */
   
   //  Asignamos los parámetros a utilizar, la lista de nodos que retornaremos, el nodo en el que nuesencotramos y el stack que nos ayudará a hacer el arbol 
-  private static int nodeCounter = 1;
+  private int alfanumericoCounter = 1;
+  private int operatorCounter = 1;
   private final List<node> treeNodes;
   private final Stack<node> operandStack;
 
@@ -47,18 +48,50 @@ public class Calculate_tree {
   }
 
   /**
-   * Handles leaf nodes (operands) in the expression
+   * Maneja nodos hoja que son álfanumétricos que no tiene anidado nungun nodo 
+   *    1. crear un nuevo nodo con ese token suma en contador 1
+   *    2. Pushea el nuevo nodo al stack
    */
   private void handleAlfanumerico(RegexToken token) {
-
+    node leafNode = createNode(token.getValue().charAt(0), true);
+    leafNode.setName(String.valueOf(alfanumericoCounter++));
+    operandStack.push(leafNode);
+    treeNodes.add(leafNode);
   }
 
   /**
-  * Handles operator nodes based on their type
+  * Maneja operadores 
+  *   1. Crea nuevo nodo operador 
+  *   2. Cambia si nombre a o1, sulicidato para mejorar proceso de AFD
+  *   3. Maneja cuando es * puede ser vacio  
+  *   4. Si stack no esta vacio, el primero que fue el ultimo en ingresar sera puesto como el nodo de la derecha 
+  *   4.
   */
   private void handleOperator(RegexToken token) {
+    node operatorNode = createNode(token.getValue().charAt(0), false);
+    operatorNode.setName("o" + operatorCounter++);
+    if (token.getValue().equals("*")){
+      operatorNode.setNullable(true);
+    }
+    
+    if (!operandStack.isEmpty()) {
+        node rightChild = operandStack.pop();
+        if (!operandStack.isEmpty()) {
+            node leftChild = operandStack.pop();
+            operatorNode.getNodes().add(treeNodes.indexOf(leftChild));
+        }
+        operatorNode.getNodes().add(treeNodes.indexOf(rightChild));
+    }
 
+    operandStack.push(operatorNode);
+    treeNodes.add(operatorNode);
   }
+
+
+  private node createNode(char value, boolean isAlphanumeric) {
+    return new node(value, isAlphanumeric);
+}
+  
 
 
   public static void main(String[] args) {
