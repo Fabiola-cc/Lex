@@ -20,13 +20,19 @@ public class Calculate_tree {
    * , lo mismo con lo siguinte hasta que se tope con un operador va a crear un nodo operador 
    */
    
+  //  Asignamos los parámetros a utilizar, la lista de nodos que retornaremos, el nodo en el que nuesencotramos y el stack que nos ayudará a hacer el arbol 
     private static int nodeCounter = 1;
     private final List<node> treeNodes;
     private final Stack<node> operandStack;
 
-    public v+Calculate_tree() {
+    public Calculate_tree() {
         this.treeNodes = new ArrayList<>();
         this.operandStack = new Stack<>();
     }
+
+
+public static void main(String[] args) {
+  
+}
 
 }
