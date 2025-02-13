@@ -89,8 +89,8 @@ public class ShuntingYard {
                     output.add(new RegexToken("‧", true)); // Concatenación implícita
                 }
 
-                // Si un operador * o + es seguido de un paréntesis de apertura, también agregamos la concatenación
-                if ((isCurrentOperator && (current.getValue().equals("*") || current.getValue().equals("+"))) && isNextOpenParen) {
+                // Si un operador * o + es seguido de un paréntesis de apertura o un no operador, también agregamos la concatenación
+                if ((isCurrentOperator && (current.getValue().equals("*") || current.getValue().equals("+"))) && (isNextOpenParen || !isNextOperator)) {
                     output.add(new RegexToken("‧", true)); // Agregar concatenación
                 }
 
@@ -102,6 +102,7 @@ public class ShuntingYard {
                 if (isCurrentCloseParen && isNextOpenParen) {
                     output.add(new RegexToken("‧", true));
                 }
+
             }
         }
 
