@@ -22,6 +22,7 @@ public class Calculated_functions {
                     }
                     return result;
                 case '‧':
+                    // Si el 'hijo' a la *izquierda* es nulo
                     node condition = Direct_AFD.getTree_info().get(element.getNodes().get(0));
                     if (condition.isNullable()) {
                         for (int hijo : element.getNodes()) {

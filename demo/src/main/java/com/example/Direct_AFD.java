@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 
+import com.example.Drawings.Draw_AFD;
 import com.example.models.AFD;
 import com.example.models.RegexToken;
 import com.example.models.node;
@@ -41,16 +42,8 @@ public class Direct_AFD {
     public AFD generate_directAfd(List<node> tree) {
         read_tree(tree);
         find_symbols();
-        System.out.println("Symbols: " + Symbols.toString());
 
         check_calculated_functions();
-        for (node object : tree_info) {
-            System.out.println(object.getName() + ": " + object.isNullable());
-            System.out.println("firstpos: " + object.getFirstpos());
-            System.out.println("lastpos: " + object.getLastpos());
-            System.out.println("followpos: " + object.getfollowpos());
-            System.out.println();
-        }
 
         // Según la definición del árbol la raíz siempre es la última en añadirse al
         // listado de nodos
@@ -62,25 +55,12 @@ public class Direct_AFD {
             System.out.println(s + "\t" + transitions_table.get(s));
         }
 
-        System.out.println("\n NODOS FINALES");
-        for (String nodeString : acceptedNodes) {
-            System.out.println(nodeString);
-        }
-
-        System.out.println("\n ESTADOS ACEPTADOS");
-        for (List<String> state : acceptanceStates) {
-            System.out.println(state);
-        }
         rename_transitions();
         List<String> states = new ArrayList<>();
-        System.out.println("\n ESTADOS RENOMBRADOS");
+        System.out.println("\n Nombres de estados");
         for (List<String> state : Renamed_states.keySet()) {
             System.out.println(state + "\t" + Renamed_states.get(state));
             states.add(Renamed_states.get(state));
-        }
-        System.out.println("\n TRANSICIONES RENOMBRADAS");
-        for (String ns : Renamed_transitions.keySet()) {
-            System.out.println(ns + "\t" + Renamed_transitions.get(ns));
         }
 
         return new AFD(Renamed_transitions, states, Symbols, initial_state, acceptance_states);
@@ -275,6 +255,9 @@ public class Direct_AFD {
 
         System.out.println("AFN generado con el método directo");
         afd.printAFD();
+
+        Draw_AFD drawerAfd = new Draw_AFD(afd);
+        drawerAfd.displayAutomaton();
 
         String inputString = "baabb#";
 

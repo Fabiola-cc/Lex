@@ -51,6 +51,7 @@ public class Main {
         drawer.visualizeTree(treeNodes);
 
         // Step 4: Create Direct AFD from syntax tree
+        System.out.println("\nGenerating AFD...");
         Direct_AFD generator = new Direct_AFD();
 
         // Generate the AFD
@@ -69,10 +70,10 @@ public class Main {
 
         // Step 6: Checks if a string is valid in AFD
         System.out.print("Enter a string to check with the AFD: ");
-        String inputString = scanner.nextLine();
+        String inputString = scanner.nextLine() + "#";
 
         ArrayList<ArrayList<String>> derivationProcess = miniAfd.derivation(miniAfd.getInitial_state(), inputString);
-        Boolean result = miniAfd.accepted(derivationProcess.get(derivationProcess.size() - 1).get(0), inputString,
+        Boolean result = miniAfd.accepted(derivationProcess.get(derivationProcess.size() - 1).get(0),
                 miniAfd.getAcceptance_states());
         if (result) {
             System.out.println("La cadena es aceptada");
