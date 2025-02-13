@@ -76,6 +76,7 @@ public class Direct_AFD {
         System.out.println("\n ESTADOS RENOMBRADOS");
         for (List<String> state : Renamed_states.keySet()) {
             System.out.println(state + "\t" + Renamed_states.get(state));
+            states.add(Renamed_states.get(state));
         }
         System.out.println("\n TRANSICIONES RENOMBRADAS");
         for (String ns : Renamed_transitions.keySet()) {
@@ -226,6 +227,10 @@ public class Direct_AFD {
 
     private void find_symbols() {
         for (node object : tree_info) {
+            if (tree_info.indexOf(object) == tree_info.size() - 2) {
+                // Omitir centinela
+                break;
+            }
             if (object.isAlphanumeric() && !Symbols.contains(object.getValue())) {
                 Symbols.add(object.getValue());
             }

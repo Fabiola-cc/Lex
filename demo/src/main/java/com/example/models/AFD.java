@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class AFD {
@@ -80,19 +81,6 @@ public class AFD {
             }
         }
         return transited_state;
-    }
-
-    /*
-     * q --> state
-     * w --> string to check
-     * d --> list of transitions
-     * 
-     * @return final state of string
-     */
-    private String final_state(String q, String w) {
-        String value = w.charAt(w.length() - 1) + "";
-
-        return transition(String.valueOf(q), value);
     }
 
     /*
@@ -172,221 +160,136 @@ public class AFD {
         return normalizedQ;
     }
 
-    private Set<String> difference(Set<String> Q, Set<String> F) {
-        Set<String> difference = new HashSet<>(Q);
-        difference.removeAll(F);
-        return difference;
-    }
-
     public AFD minimize() {
         // Convert transitions into HashMap<String, HashMap<String, String>>
         HashMap<String, HashMap<String, String>> transitionMap = new HashMap<>();
 
-        for (String state : transitions_table.keySet()) {
+        for (String stateFrom : transitions_table.keySet()) {
+            List<String> transition = transitions_table.get(stateFrom);
             for (int i = 0; i < alphabet.size(); i++) {
-                String symbol = Character.toString(alphabet.get(i));
-                String stateTo = transitions_table.get(state).get(i);
+                String symbol = alphabet.get(i) + "";
+                String stateTo = transition.get(i);
 
                 transitionMap.putIfAbsent(symbol, new HashMap<>());
-                transitionMap.get(symbol).put(state, stateTo);
+                transitionMap.get(symbol).put(stateFrom, stateTo);
             }
         }
 
-        // Converts states and acceptance states into sets
+        // Convert states and acceptance states into sets
         Set<String> F = new HashSet<>(acceptance_states);
         Set<String> Q = new HashSet<>(states);
-
-        Set<String> P = new HashSet<>();
-        P = difference(Q, F);
+        Set<String> P = new HashSet<>(Q);
+        P.removeAll(F);
 
         Set<String[]> combinations = new HashSet<>();
 
-        // Doing cartesian product
+        // Creating pairs of states for minimization
         for (String i : P) {
             for (String j : F) {
-                String[] combination = { i, j };
-                combinations.add(combination);
+                combinations.add(new String[] { i, j });
             }
         }
 
         Set<String[]> newCombinations = new HashSet<>();
-        Set<String[]> oldCombinations = new HashSet<>(combinations);
+        Set<String[]> oldCombinations;
         do {
             oldCombinations = new HashSet<>(combinations);
             for (String[] combination : combinations) {
                 for (String alphabet : transitionMap.keySet()) {
                     HashMap<String, String> alphabetTransition = transitionMap.get(alphabet);
+                    List<String> firstValues = new ArrayList<>();
+                    List<String> secondValues = new ArrayList<>();
 
-                    ArrayList<String> firstValues = new ArrayList<>();
-                    ArrayList<String> secondValues = new ArrayList<>();
-
-                    if (alphabetTransition.values().contains(combination[0])
-                            && alphabetTransition.values().contains(combination[1])) {
+                    if (alphabetTransition.containsValue(combination[0])
+                            && alphabetTransition.containsValue(combination[1])) {
                         for (String key : alphabetTransition.keySet()) {
                             if (alphabetTransition.get(key).equals(combination[0])
-                                    && Arrays.asList(acceptance_states).contains(key) == false) {
+                                    && !acceptance_states.contains(key)) {
                                 firstValues.add(key);
                             }
                             if (alphabetTransition.get(key).equals(combination[1])
-                                    && Arrays.asList(acceptance_states).contains(key) == false) {
+                                    && !acceptance_states.contains(key)) {
                                 secondValues.add(key);
                             }
                         }
                     }
 
-                    if (firstValues.size() > 0 && secondValues.size() > 0) {
-                        for (String i : firstValues) {
-                            for (String j : secondValues) {
-                                String[] newCombination = { i, j };
-
-                                // Convertimos el array en una lista para comparar por contenido
-                                List<String> newCombinationList = Arrays.asList(newCombination);
-
-                                // Comparamos si esa lista ya está en las combinaciones existentes
-                                boolean exists = combinations.stream()
-                                        .map(Arrays::asList) // Convertimos cada combinación existente en una lista
-                                        .anyMatch(
-                                                existingCombination -> existingCombination.equals(newCombinationList));
-
-                                if (!exists) {
-                                    newCombinations.add(newCombination);
-                                }
+                    for (String i : firstValues) {
+                        for (String j : secondValues) {
+                            List<String> newCombinationList = Arrays.asList(i, j);
+                            boolean exists = combinations.stream().map(Arrays::asList)
+                                    .anyMatch(c -> c.equals(newCombinationList));
+                            if (!exists) {
+                                newCombinations.add(new String[] { i, j });
                             }
                         }
                     }
-
                 }
             }
-
-            // Add all new combinations to the original set
             combinations.addAll(newCombinations);
-
-            Set<List<String>> combinationsList = new HashSet<>();
-            Set<List<String>> oldCombinationsList = new HashSet<>();
-
-            for (String[] arr : combinations) {
-                combinationsList.add(Arrays.asList(arr));
-            }
-            for (String[] arr : oldCombinations) {
-                oldCombinationsList.add(Arrays.asList(arr));
-            }
-
             newCombinations.clear();
         } while (!differenceList(combinations, oldCombinations).isEmpty());
 
         Set<String[]> matrix_combinations = new HashSet<>();
-
         for (String q1 : states) {
-            boolean same_state = true;
-
             for (String q2 : states) {
-
-                if (same_state && q1.equals(q2)) {
-                    same_state = false;
-                } else if (!same_state && !q1.equals(q2)) {
-                    String[] matrix_combination = { q1, q2 };
-                    matrix_combinations.add(matrix_combination);
+                if (!q1.equals(q2)) {
+                    matrix_combinations.add(new String[] { q1, q2 });
                 }
             }
         }
 
         Set<List<String>> states_to_combine = differenceList(matrix_combinations, combinations);
-
         Set<String> combinedStates = new HashSet<>();
 
         for (List<String> q : states_to_combine) {
-            String combined = String.join("", q);
-            combinedStates.add(combined);
-        }
-
-        Set<String> combinedStates2 = new HashSet<>();
-        int counter = combinedStates.size();
-        while (combinedStates.size() > 1 && counter > 1) {
-            Set<String> toRemove = new HashSet<>();
-            Set<String> toAdd = new HashSet<>();
-
-            for (String x : combinedStates) {
-                String state = x;
-                for (String y : combinedStates) {
-                    if (!x.equals(y) && (x.contains(y.substring(0, 1)) || x.contains(y.substring(2, 3)))) {
-                        state = state + y;
-                        toRemove.add(y); // Marcar para eliminar después
-                    }
-                }
-                toAdd.add(state); // Marcar para agregar después
-                if (!state.equals(x)) {
-                    break; // Salir si se modificó
-                }
-            }
-
-            // Modificar el conjunto fuera del bucle de iteración
-            combinedStates.removeAll(toRemove);
-            combinedStates2.addAll(toAdd);
-
-            counter--;
+            combinedStates.add(String.join("", q));
         }
 
         // Define new states
-        ArrayList<String> newStates = new ArrayList<>();
-        if (combinedStates2.size() > 0) {
-            for (String state1 : combinedStates2) {
-                for (String state2 : states) {
-                    if (!state1.contains(state2)) {
-                        newStates.add(state2);
-                    }
-                }
-                newStates.add(state1);
-            }
-        } else {
-            newStates = new ArrayList<>(states);
+        List<String> newStates = new ArrayList<>(states);
+        for (String combined : combinedStates) {
+            newStates.removeIf(state -> combined.contains(state));
+            newStates.add(combined);
         }
 
         // Define new initial state
-        String newInitialState = "";
-        for (String x : newStates) {
-            if (x.contains(initial_state)) {
-                newInitialState = x;
-                break;
-            }
-        }
+        String newInitialState = newStates.stream().filter(s -> s.contains(initial_state)).findFirst()
+                .orElse(initial_state);
 
-        // Define new acceptances states
-        ArrayList<String> newAcceptanceStates = new ArrayList<>();
+        // Define new acceptance states
+        List<String> newAcceptanceStates = new ArrayList<>();
         for (String x : newStates) {
-            for (String y : acceptance_states) {
-                if (x.contains(y)) {
-                    newAcceptanceStates.add(x);
-                    break;
-                }
+            if (acceptance_states.stream().anyMatch(x::contains)) {
+                newAcceptanceStates.add(x);
             }
         }
 
         // Define transition function
-        HashMap<String, List<String>> newTransitions = new HashMap<>();
+        HashMap<String, List<String>> newTransitionsTable = new HashMap<>();
         for (String newState : newStates) {
-            int totalAlphabet = alphabet.size();
-            for (String oldState : transitions_table.keySet()) {
-                if (newState.contains(oldState)) {
-                    List<String> newTransition = new ArrayList<String>();
-                    for (String realState : combinedStates2) {
-                        for (int i = 0; i < alphabet.size(); i++) {
-                            String stateTo = transitions_table.get(oldState).get(i);
-                            if (realState.contains(stateTo)) {
-                                stateTo = realState;
+            List<String> transitionsList = new ArrayList<>();
+            for (String originalState : states) {
+                if (newState.contains(originalState) && transitions_table.containsKey(originalState)) {
+                    List<String> transition = transitions_table.get(originalState);
+                    for (int i = 0; i < alphabet.size(); i++) {
+                        String destination = transition.get(i);
+
+                        for (String combined : combinedStates) {
+                            if (combined.contains(destination)) {
+                                destination = combined;
+                                break;
                             }
-                            newTransition.add(stateTo);
                         }
-                    }
-                    newTransitions.put(newState, newTransition);
-                    totalAlphabet--;
-                    if (totalAlphabet < 1) {
-                        break;
+                        transitionsList.add(destination);
+
                     }
                 }
             }
+            newTransitionsTable.put(newState, transitionsList);
         }
 
-        return new AFD(newTransitions, newStates, alphabet, newInitialState, newAcceptanceStates);
+        return new AFD(newTransitionsTable, newStates, alphabet, newInitialState, newAcceptanceStates);
     }
 
     public void printAFD() {
@@ -394,7 +297,9 @@ public class AFD {
 
         System.out.println("\n Estado inicial: " + initial_state);
 
-        System.out.println("\n Estados de aceptación" + acceptance_states.toString());
+        System.out.println("\n Estados de aceptación: " + acceptance_states.toString());
+
+        System.out.println("\n Todos los estados: " + states.toString());
 
         System.out.println("\n TRANSICIONES");
         for (String ns : transitions_table.keySet()) {
