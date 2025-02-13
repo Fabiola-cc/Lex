@@ -11,31 +11,38 @@ import com.example.models.node;
 
 public class Direct_AFD {
     public static ArrayList<node> tree_info;
+
     private HashMap<List<String>, List<List<String>>> transitions_table;
-    private HashMap<String, List<String>> Renamed_transitions;
     private List<List<String>> States;
-    private HashMap<List<String>, String> Renamed_states;
     private List<Character> Symbols;
+    private List<List<String>> acceptanceStates;
+    private List<String> acceptedNodes;
+    private List<String> initialState;
+
+    private HashMap<String, List<String>> Renamed_transitions;
+    private HashMap<List<String>, String> Renamed_states;
     private String initial_state;
     private List<String> acceptance_states;
-    private List<String> initialState;
 
     public Direct_AFD() {
         tree_info = new ArrayList<node>();
+
         transitions_table = new HashMap<>();
         States = new ArrayList<>();
         Symbols = new ArrayList<>();
+        acceptanceStates = new ArrayList<>();
+        acceptedNodes = new ArrayList<>();
+
         Renamed_states = new HashMap<>();
         Renamed_transitions = new HashMap<>();
+        acceptance_states = new ArrayList<>();
     }
 
     public AFD generate_directAfd(List<node> tree) {
         read_tree(tree);
         find_symbols();
-        System.out.print("Symbols: ");
-        for (Character blabla : Symbols) {
-            System.out.print(blabla + ", ");
-        }
+        System.out.println("Symbols: " + Symbols.toString());
+
         check_calculated_functions();
         for (node object : tree_info) {
             System.out.println(object.getName() + ": " + object.isNullable());
@@ -45,11 +52,25 @@ public class Direct_AFD {
             System.out.println();
         }
 
-        create_transitions();
+        // Según la definición del árbol la raíz siempre es la última en añadirse al
+        // listado de nodos
+        int root = tree_info.size() - 1;
+
+        get_AcceptedNodes(root);
+        create_transitions(root);
         for (List<String> s : transitions_table.keySet()) {
             System.out.println(s + "\t" + transitions_table.get(s));
         }
 
+        System.out.println("\n NODOS FINALES");
+        for (String nodeString : acceptedNodes) {
+            System.out.println(nodeString);
+        }
+
+        System.out.println("\n ESTADOS ACEPTADOS");
+        for (List<String> state : acceptanceStates) {
+            System.out.println(state);
+        }
         rename_transitions();
         List<String> states = new ArrayList<>();
         System.out.println("\n ESTADOS RENOMBRADOS");
@@ -89,13 +110,20 @@ public class Direct_AFD {
     }
 
     /**
+     * @param root
+     * 
+     *             Saves all nodes that can be last in regex
+     */
+    private void get_AcceptedNodes(int root) {
+        node rootNode = tree_info.get(root);
+        acceptedNodes = rootNode.getLastpos();
+    }
+
+    /**
      * Crea la transición inicial y empieza el loop para el resto de las
      * transiciones
      */
-    private void create_transitions() {
-        // Según la definición del árbol la raíz siempre es la última en añadirse al
-        // listado de nodos
-        int root = tree_info.size() - 2;
+    private void create_transitions(int root) {
         // El estado inicial es el firstpos del nodo raíz
         System.out.println(tree_info.get(root).getValue());
         System.out.println(tree_info.get(root).isAlphanumeric());
@@ -134,7 +162,9 @@ public class Direct_AFD {
                     }
                 }
             }
-            result.add(newState);
+            if (!newState.isEmpty()) {
+                result.add(newState);
+            }
         }
         return result;
     }
@@ -151,6 +181,13 @@ public class Direct_AFD {
                 States.add(state);
                 List<List<String>> actual_transitions = save_transitions(state);
 
+                // Guardar estados de aceptación, es decir, aquellos que contienen nodos finales
+                for (String value : acceptedNodes) {
+                    if (state.contains(value)) {
+                        acceptanceStates.add(state);
+                    }
+                }
+
                 transitions_table.put(state, actual_transitions);
                 state_transitions(actual_transitions);
             }
@@ -161,12 +198,16 @@ public class Direct_AFD {
      * Guarda las transiciones en un formato más amigable
      */
     private void rename_transitions() {
+        // Genera los nuevos nombres para los estados, basado en su posición
         for (List<String> state : States) {
             int stateName = States.size() - States.indexOf(state);
             Renamed_states.put(state, "S" + stateName);
         }
 
+        // Registra el estado inicial renombrado
         initial_state = Renamed_states.get(initialState);
+
+        // Registra las nuevas transiciones con los nuevos nombres
         for (List<String> state : transitions_table.keySet()) {
             String renamed_state = Renamed_states.get(state);
             List<String> renamed_transitions = new ArrayList<>();
@@ -174,6 +215,12 @@ public class Direct_AFD {
                 renamed_transitions.add(Renamed_states.get(transition));
             }
             Renamed_transitions.put(renamed_state, renamed_transitions);
+        }
+
+        // Registra los estados finales con los nuevos nombres
+        for (List<String> accepted_state : acceptanceStates) {
+            String renamed_Astate = Renamed_states.get(accepted_state);
+            acceptance_states.add(renamed_Astate);
         }
     }
 
@@ -222,5 +269,30 @@ public class Direct_AFD {
         AFD afd = generator.generate_directAfd(result);
 
         System.out.println("AFN generado con el método directo");
+        afd.printAFD();
+
+        String inputString = "baabb#";
+
+        ArrayList<ArrayList<String>> derivationProcess = afd.derivation(afd.getInitial_state(), inputString);
+        Boolean resultString = afd.accepted(derivationProcess.get(derivationProcess.size() - 1).get(0),
+                afd.getAcceptance_states());
+        if (resultString) {
+            System.out.println("La cadena es aceptada");
+        } else {
+            System.out.println("La cadena no es aceptada");
+        }
+
+        System.out.println("\nPRINT MINIMIZED");
+        AFD miniAfd = afd.minimize();
+        miniAfd.printAFD();
+
+        ArrayList<ArrayList<String>> derivationProcess2 = miniAfd.derivation(miniAfd.getInitial_state(), inputString);
+        Boolean resultString2 = miniAfd.accepted(derivationProcess2.get(derivationProcess2.size() - 1).get(0),
+                miniAfd.getAcceptance_states());
+        if (resultString2) {
+            System.out.println("La cadena es aceptada");
+        } else {
+            System.out.println("La cadena no es aceptada");
+        }
     }
 }
