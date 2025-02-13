@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class AFD {
@@ -164,14 +163,16 @@ public class AFD {
         // Convert transitions into HashMap<String, HashMap<String, String>>
         HashMap<String, HashMap<String, String>> transitionMap = new HashMap<>();
 
+        // Aquí, stateFrom es la clave principal y cada entrada de transitionMap
+        // contiene un HashMap<symbol, stateTo>, lo que facilita la consulta posterior
         for (String stateFrom : transitions_table.keySet()) {
             List<String> transition = transitions_table.get(stateFrom);
+            transitionMap.putIfAbsent(stateFrom, new HashMap<>());
             for (int i = 0; i < transition.size(); i++) {
                 String symbol = alphabet.get(i) + "";
-                String stateTo = (transition.get(i) != null) ? transition.get(i) : "";
+                String stateTo = transition.get(i) != null ? transition.get(i) : "";
 
-                transitionMap.putIfAbsent(symbol, new HashMap<>());
-                transitionMap.get(symbol).put(stateFrom, stateTo);
+                transitionMap.get(stateFrom).put(symbol, stateTo);
             }
         }
 
@@ -186,7 +187,10 @@ public class AFD {
         // Creating pairs of states for minimization
         for (String i : P) {
             for (String j : F) {
-                combinations.add(new String[] { i, j });
+                String[] pair = { i, j };
+                Arrays.sort(pair); // Orden para evitar duplicados con diferente orden
+                combinations.add(pair);
+
             }
         }
 
@@ -228,6 +232,7 @@ public class AFD {
             }
             combinations.addAll(newCombinations);
             newCombinations.clear();
+
         } while (!differenceList(combinations, oldCombinations).isEmpty());
 
         Set<String[]> matrix_combinations = new HashSet<>();
@@ -265,24 +270,29 @@ public class AFD {
             }
         }
 
-        // Define transition function
+        // Define la nueva tabla de transiciones
         HashMap<String, List<String>> newTransitionsTable = new HashMap<>();
+
         for (String newState : newStates) {
-            List<String> transitionsList = new ArrayList<>();
+            List<String> transitionsList = new ArrayList<>(Collections.nCopies(alphabet.size(), "")); // Iniciar con
+                                                                                                      // tamaño fijo
+
             for (String originalState : states) {
                 if (newState.contains(originalState) && transitions_table.containsKey(originalState)) {
                     List<String> transition = transitions_table.get(originalState);
-                    for (int i = 0; i < transition.size(); i++) {
-                        String destination = (transition.get(i) != null) ? transition.get(i) : "";
 
+                    for (int i = 0; i < transition.size(); i++) {
+                        String destination = transition.get(i) != null ? transition.get(i) : "";
+
+                        // Verificar si pertenece a un estado combinado
                         for (String combined : combinedStates) {
                             if (combined.contains(destination)) {
                                 destination = combined;
                                 break;
                             }
                         }
-                        transitionsList.add(destination);
-
+                        transitionsList.set(i, destination); // Asegurar que cada índice del alfabeto se llene
+                                                             // correctamente
                     }
                 }
             }
@@ -306,5 +316,33 @@ public class AFD {
             System.out.println(ns + "\t" + transitions_table.get(ns));
         }
 
+    }
+
+    public static void main(String[] args) {
+
+        // Definir estados
+        List<String> states = Arrays.asList("q0", "q1", "q2", "q3");
+
+        // Definir alfabeto
+        List<Character> alphabet = Arrays.asList('0', '1');
+
+        // Definir estado inicial
+        String initial_state = "q0";
+
+        // Definir estados de aceptación
+        List<String> acceptance_states = Arrays.asList("q1", "q3");
+
+        // Definir transiciones
+        HashMap<String, List<String>> transitions = new HashMap<>();
+        transitions.put("q0", Arrays.asList("q1", "q2"));
+        transitions.put("q1", Arrays.asList("q0", "q3"));
+        transitions.put("q2", Arrays.asList("q3", "q0"));
+        transitions.put("q3", Arrays.asList("q2", "q1"));
+
+        AFD afd = new AFD(transitions, states, alphabet, initial_state, acceptance_states);
+        afd.printAFD();
+
+        AFD mini = afd.minimize();
+        mini.printAFD();
     }
 }
