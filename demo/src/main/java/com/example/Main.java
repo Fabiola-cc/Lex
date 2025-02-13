@@ -1,19 +1,32 @@
 package com.example;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import com.example.Drawings.Draw_AFD;
-import com.example.Drawings.Draw_Tree;
+import com.example.Drawings.GraphVizAFD;
 import com.example.models.AFD;
 import com.example.models.RegexToken;
 import com.example.models.node;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
+        System.out.println("Bienvenido al Compilador de Expresiones Regulares");
+        System.out.println("----------------------------------------");
+        System.out.println("Este programa convierte expresiones regulares a Autómatas Finitos Deterministas");
+        System.out.println("Caracteres especiales:");
+        System.out.println("  * - Estrella de Kleene (cero o más)");
+        System.out.println("  | - Unión (alternancia)");
+        System.out.println("  + - Uno o más");
+        System.out.println("  ? - Cero o uno");
+        System.out.println("  [] - Clase de caracteres (ej., [a-z])");
+        System.out.println("  [^] - Clase de caracteres negada");
+        System.out.println("  () - Agrupación");
+        System.out.println("----------------------------------------");
+        
         // Step 1: Get the regular expression from user
         System.out.print("Enter a regular expression: ");
         String regex = scanner.nextLine();
@@ -46,9 +59,6 @@ public class Main {
         }
         System.out.println();
 
-        // Create image of tree
-        Draw_Tree drawer = new Draw_Tree();
-        drawer.visualizeTree(treeNodes);
 
         // Step 4: Create Direct AFD from syntax tree
         System.out.println("\nStep 3: Generating AFD");
@@ -59,19 +69,12 @@ public class Main {
         System.out.println("AFD results:");
         model.printAFD();
 
-        // Create image of AFD
-        Draw_AFD drawerAfd = new Draw_AFD(model);
-        drawerAfd.displayAutomaton();
 
         // Step 5: Minimize the AFD (optional)
         System.out.println("\nStep 4: Try to Minimize AFD");
         AFD miniAfd = model.minimize();
         System.out.println("AFD Minimization results:");
         miniAfd.printAFD();
-
-        // Create image of minimized AFD
-        Draw_AFD drawerMini = new Draw_AFD(miniAfd);
-        drawerMini.displayAutomaton();
 
         // Step 6: Checks if a string is valid in AFD
         System.out.println("\nStep 5: Check string");
@@ -86,6 +89,18 @@ public class Main {
         } else {
             System.out.println("\nLa cadena no es aceptada");
         }
+
+
+        System.out.println("\n Generando imagen de AFD...");
+        GraphVizAFD drawerAfd = new GraphVizAFD(model, "AFDimage.png");
+        drawerAfd.draw();
+        System.out.println("Puedes ver tu AFD como 'AFDimage.png'");
+        
+        // System.out.println("\n Generando imagen de AFD minimizado...");
+        // GraphVizAFD drawerAfdmini = new GraphVizAFD(model, "MiniAFDimage.png");
+        // drawerAfdmini.draw();
+        // System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
+
 
         scanner.close();
     }
