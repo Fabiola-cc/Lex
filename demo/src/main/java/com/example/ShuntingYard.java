@@ -4,13 +4,12 @@ import java.util.*;
 import com.example.models.RegexToken;
 
 public class ShuntingYard {
-    private static final Set<String> OPERATORS = Set.of("|", "*", "+", "‧");
+    private static final Set<String> OPERATORS = Set.of("|", "*", "‧");
 
     private static final Map<String, Integer> PRECEDENCE = Map.of(
             "|", 1,  // Unión
             "‧", 2,  // Concatenación
-            "*", 3,  // Cierre de Kleene
-            "+", 4 // Una o más repeticiones
+            "*", 3 // Cierre de Kleene
     );
 
     public static List<RegexToken> convertToArray(String regex) {
@@ -52,6 +51,27 @@ public class ShuntingYard {
                 tokens.add(new RegexToken("|", true));
                 tokens.add(new RegexToken("\0", false));
                 tokens.add(new RegexToken(")", true));
+            } else if (c.equals("+")){
+                if (!tokens.isEmpty()) {
+                    RegexToken prevToken = tokens.get(tokens.size() - 1);
+
+                    // Si el token previo es un paréntesis de cierre, copiar todo lo dentro de los paréntesis
+                    if (prevToken.getValue().equals(")")) {
+                        // Buscar el paréntesis abierto correspondiente
+                        int openIndex = findMatchingOpenParen(tokens);
+                        if (openIndex != -1) {
+                            List<RegexToken> insideParens = tokens.subList(openIndex, tokens.size());
+
+                            // Copiar los tokens dentro del paréntesis y agregar *
+                            tokens.addAll(new ArrayList<>(insideParens));
+                            tokens.add(new RegexToken("*", true));
+                        }
+                    } else {
+                        // Caso simple: a+ → aa*
+                        tokens.add(prevToken);
+                        tokens.add(new RegexToken("*", true));
+                    }
+                }
             } else {
                 if(c.equals("(") || c.equals(")")) {
                     tokens.add(new RegexToken(c, true));
@@ -109,11 +129,20 @@ public class ShuntingYard {
         return output;
     }
 
-
-
-
-
-
+    private static int findMatchingOpenParen(List<RegexToken> tokens) {
+        int balance = 0;
+        for (int i = tokens.size() - 1; i >= 0; i--) {
+            if (tokens.get(i).getValue().equals(")")) {
+                balance++;
+            } else if (tokens.get(i).getValue().equals("(")) {
+                balance--;
+                if (balance == 0) {
+                    return i; // Encontramos el `(`
+                }
+            }
+        }
+        return -1; // No se encontró un `(`
+    }
 
 
     public static List<RegexToken> shuntingYard(List<RegexToken> infix) {
