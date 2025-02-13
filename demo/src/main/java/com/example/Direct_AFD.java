@@ -20,7 +20,7 @@ public class Direct_AFD {
     private List<String> acceptance_states;
     private List<String> initialState;
 
-    public Direct_AFD(List<node> tree) {
+    public Direct_AFD() {
         tree_info = new ArrayList<node>();
         transitions_table = new HashMap<>();
         States = new ArrayList<>();
@@ -218,7 +218,7 @@ public class Direct_AFD {
 
         List<node> result = calculator.convertPostfixToTree(postfixExample);
 
-        Direct_AFD generator = new Direct_AFD(result);
+        Direct_AFD generator = new Direct_AFD();
         AFD afd = generator.generate_directAfd(result);
 
         System.out.println("AFN generado con el método directo");
