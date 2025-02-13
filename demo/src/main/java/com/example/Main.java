@@ -3,6 +3,7 @@ package com.example;
 import java.util.List;
 import java.util.Scanner;
 
+import com.example.Drawings.Draw_Tree;
 import com.example.models.RegexToken;
 import com.example.models.node;
 
@@ -41,6 +42,10 @@ public class Main {
                              "Children=" + n.getNodes());
         }
         System.out.println();
+
+        // Create image of tree
+        Draw_Tree drawer = new Draw_Tree();
+        drawer.visualizeTree(treeNodes);
         
         // Step 4: Create Direct AFD from syntax tree
         
@@ -48,7 +53,6 @@ public class Main {
         
         // Print AFD information
        
-        
         // Step 5: Minimize the AFD (optional)
   }
 }
