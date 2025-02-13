@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import com.example.models.AFD;
@@ -52,6 +53,22 @@ public class Generate_AFD {
                 afd.getAcceptance_states());
 
         assertTrue("La cadena debería ser aceptada por el AFD", resultString);
+
+        String input2 = "baabbaa#";
+        ArrayList<ArrayList<String>> derivation2 = afd.derivation(afd.getInitial_state(), input2);
+        Boolean result2 = afd.accepted(
+                derivation2.get(derivation2.size() - 1).get(0),
+                afd.getAcceptance_states());
+
+        assertFalse("La cadena NO debería ser aceptada, tiene más caracteres", result2);
+
+        String input3 = "baab#";
+        ArrayList<ArrayList<String>> derivation3 = afd.derivation(afd.getInitial_state(), input3);
+        Boolean result3 = afd.accepted(
+                derivation3.get(derivation3.size() - 1).get(0),
+                afd.getAcceptance_states());
+
+        assertFalse("La cadena NO debería ser aceptada, tiene menos caracteres", result3);
     }
 
     @Test
