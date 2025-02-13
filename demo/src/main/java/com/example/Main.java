@@ -27,7 +27,7 @@ public class Main {
         System.out.println("  [^] - Clase de caracteres negada");
         System.out.println("  () - Agrupación");
         System.out.println("----------------------------------------");
-        
+
         // Step 1: Get the regular expression from user
         System.out.print("Enter a regular expression: ");
         String regex = scanner.nextLine();
@@ -64,9 +64,7 @@ public class Main {
         Draw_Tree drawer = new Draw_Tree();
         drawer.visualizeTree(treeNodes);
         System.out.println("Puedes ver tu árbol como 'Syntax_Tree.png'");
-        
 
- 
         // Step 4: Create Direct AFD from syntax tree
         System.out.println("\nStep 3: Generating AFD");
         Direct_AFD generator = new Direct_AFD();
@@ -75,7 +73,6 @@ public class Main {
         AFD model = generator.generate_directAfd(treeNodes);
         System.out.println("AFD results:");
         model.printAFD();
-
 
         // Step 5: Minimize the AFD (optional)
         System.out.println("\nStep 4: Try to Minimize AFD");
@@ -97,17 +94,15 @@ public class Main {
             System.out.println("\nLa cadena no es aceptada");
         }
 
-
         System.out.println("\n Generando imagen de AFD...");
         GraphVizAFD drawerAfd = new GraphVizAFD(model, "AFDimage.png");
         drawerAfd.draw();
         System.out.println("Puedes ver tu AFD como 'AFDimage.png'");
-        
-        // System.out.println("\n Generando imagen de AFD minimizado...");
-        // GraphVizAFD drawerAfdmini = new GraphVizAFD(model, "MiniAFDimage.png");
-        // drawerAfdmini.draw();
-        // System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
 
+        System.out.println("\n Generando imagen de AFD minimizado...");
+        GraphVizAFD drawerAfdmini = new GraphVizAFD(miniAfd, "MiniAFDimage.png");
+        drawerAfdmini.draw();
+        System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
 
         scanner.close();
     }
