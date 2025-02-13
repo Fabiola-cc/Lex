@@ -14,10 +14,11 @@ public class Direct_AFD {
     private HashMap<List<String>, List<List<String>>> transitions_table;
     private HashMap<String, List<String>> Renamed_transitions;
     private List<List<String>> States;
-    private HashMap<String, List<String>> Renamed_states;
+    private HashMap<List<String>, String> Renamed_states;
     private List<Character> Symbols;
     private String initial_state;
     private List<String> acceptance_states;
+    private List<String> initialState;
 
     public Direct_AFD(List<node> tree) {
         tree_info = new ArrayList<node>();
@@ -37,18 +38,29 @@ public class Direct_AFD {
         }
         check_calculated_functions();
         for (node object : tree_info) {
-            System.err.println(object.getName() + ": " + object.isNullable());
-            System.err.println("firstpos: " + object.getFirstpos());
-            System.err.println("lastpos: " + object.getLastpos());
-            System.err.println("followpos: " + object.getfollowpos());
-            System.err.println();
+            System.out.println(object.getName() + ": " + object.isNullable());
+            System.out.println("firstpos: " + object.getFirstpos());
+            System.out.println("lastpos: " + object.getLastpos());
+            System.out.println("followpos: " + object.getfollowpos());
+            System.out.println();
         }
 
         create_transitions();
         for (List<String> s : transitions_table.keySet()) {
-            System.err.println(s + "\t" + transitions_table.get(s));
+            System.out.println(s + "\t" + transitions_table.get(s));
         }
-        List<String> states = (List<String>) Renamed_states.keySet();
+
+        rename_transitions();
+        List<String> states = new ArrayList<>();
+        System.out.println("\n ESTADOS RENOMBRADOS");
+        for (List<String> state : Renamed_states.keySet()) {
+            System.out.println(state + "\t" + Renamed_states.get(state));
+        }
+        System.out.println("\n TRANSICIONES RENOMBRADAS");
+        for (String ns : Renamed_transitions.keySet()) {
+            System.out.println(ns + "\t" + Renamed_transitions.get(ns));
+        }
+
         return new AFD(Renamed_transitions, states, Symbols, initial_state, acceptance_states);
     }
 
@@ -85,7 +97,9 @@ public class Direct_AFD {
         // listado de nodos
         int root = tree_info.size() - 2;
         // El estado inicial es el firstpos del nodo raíz
-        List<String> initialState = tree_info.get(root).getFirstpos();
+        System.out.println(tree_info.get(root).getValue());
+        System.out.println(tree_info.get(root).isAlphanumeric());
+        initialState = tree_info.get(root).getFirstpos();
 
         // Solicita la transición basada en el estado inicial
         List<List<String>> transitions = save_transitions(initialState);
@@ -132,16 +146,34 @@ public class Direct_AFD {
      *                    estado inicial
      */
     private void state_transitions(List<List<String>> transitions) {
-        int counter = 0;
         for (List<String> state : transitions) {
             if (!States.contains(state)) {
                 States.add(state);
-                Renamed_states.put("S" + counter, state);
                 List<List<String>> actual_transitions = save_transitions(state);
 
                 transitions_table.put(state, actual_transitions);
                 state_transitions(actual_transitions);
             }
+        }
+    }
+
+    /**
+     * Guarda las transiciones en un formato más amigable
+     */
+    private void rename_transitions() {
+        for (List<String> state : States) {
+            int stateName = States.size() - States.indexOf(state);
+            Renamed_states.put(state, "S" + stateName);
+        }
+
+        initial_state = Renamed_states.get(initialState);
+        for (List<String> state : transitions_table.keySet()) {
+            String renamed_state = Renamed_states.get(state);
+            List<String> renamed_transitions = new ArrayList<>();
+            for (List<String> transition : transitions_table.get(state)) {
+                renamed_transitions.add(Renamed_states.get(transition));
+            }
+            Renamed_transitions.put(renamed_state, renamed_transitions);
         }
     }
 
@@ -159,7 +191,7 @@ public class Direct_AFD {
                 return getTree_info().indexOf(node);
             }
         }
-        System.err.println("ERROR: no se encontró el nodo dado");
+        System.out.println("ERROR: no se encontró el nodo dado");
         return -1;
     }
 
@@ -187,24 +219,8 @@ public class Direct_AFD {
         List<node> result = calculator.convertPostfixToTree(postfixExample);
 
         Direct_AFD generator = new Direct_AFD(result);
-        generator.generate_directAfd(result);
+        AFD afd = generator.generate_directAfd(result);
 
-        System.out.print("Symbols: ");
-        for (Character blabla : generator.Symbols) {
-            System.out.print(blabla + ", ");
-        }
-        System.out.println();
-
-        for (node object : tree_info) {
-            System.err.println(object.getName() + ": " + object.isNullable());
-            System.err.println("firstpos: " + object.getFirstpos());
-            System.err.println("lastpos: " + object.getLastpos());
-            System.err.println("followpos: " + object.getfollowpos());
-            System.err.println();
-        }
-
-        for (List<String> s : generator.transitions_table.keySet()) {
-            System.err.println(s + "\t" + generator.transitions_table.get(s));
-        }
+        System.out.println("AFN generado con el método directo");
     }
 }
