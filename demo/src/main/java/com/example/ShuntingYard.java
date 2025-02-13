@@ -207,36 +207,52 @@ public class ShuntingYard {
      */
     public static void expandRegex(String regexReference, List<RegexToken> output) {
         int i = 0;
+
+        // Abrimos un solo grupo para todo el conjunto de caracteres
+        output.add(new RegexToken("(", true));
+
         while (i < regexReference.length()) {
-            String c = String.valueOf(regexReference.charAt(i));
+            char c = regexReference.charAt(i);
 
-            if (i + 2 < regexReference.length() && regexReference.charAt(i + 1) == '-') {
-                String start = String.valueOf(regexReference.charAt(i));
-                String end = String.valueOf(regexReference.charAt(i + 2));
-
-                if (start.compareTo(end) > 0) {
-                    throw new IllegalArgumentException("Rango inválido: " + regexReference);
+            if (i + 1 < regexReference.length() && regexReference.charAt(i + 1) == '-') {
+                if (i + 2 >= regexReference.length()) {
+                    throw new IllegalArgumentException("Rango incompleto en: " + regexReference);
                 }
 
-                output.add(new RegexToken("(", true));
+                char start = regexReference.charAt(i);
+                char end = regexReference.charAt(i + 2);
 
-                for (char ch = start.charAt(0); ch <= end.charAt(0); ch++) {
+                if (start > end) {
+                    throw new IllegalArgumentException("Rango inválido: " + start + "-" + end);
+                }
+
+                for (char ch = start; ch <= end; ch++) {
                     output.add(new RegexToken(String.valueOf(ch), false));
 
-                    if (ch < end.charAt(0)) {
+                    if (ch < end) { // Solo agrega "|" si no es el último carácter
                         output.add(new RegexToken("|", true));
                     }
                 }
 
-                output.add(new RegexToken(")", true));
-
-                i += 3;
+                i += 3; // Saltamos el rango completo (start - end)
+                output.add(new RegexToken("|", true));
+                continue;
             } else {
-                output.add(new RegexToken(c, false));
+                output.add(new RegexToken(String.valueOf(c), false));
                 i++;
             }
+
+            if (i < regexReference.length()) {
+                output.add(new RegexToken("|", true));
+            }
         }
+
+        // Cerramos el grupo
+        output.remove(output.size() - 1);
+        output.add(new RegexToken(")", true));
     }
+
+
 
     /**
      * Expande una referencia de expresión regular con negación dentro de corchetes (por ejemplo, [^a-z]).
