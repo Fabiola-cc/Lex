@@ -5,29 +5,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 
+import com.example.models.AFD;
 import com.example.models.RegexToken;
 import com.example.models.node;
 
 public class Direct_AFD {
-    private static ArrayList<node> tree_info;
+    public static ArrayList<node> tree_info;
     private static HashMap<String, List<String>> transitions_table;
     private static List<String> States;
     private static List<Character> Symbols;
     public String initial_state;
     public List<String> acceptance_states;
 
-    public Direct_AFD(List<Object> tree) {
+    public Direct_AFD(List<node> tree) {
         tree_info = new ArrayList<node>();
         transitions_table = new HashMap<String, List<String>>();
         States = new ArrayList<>();
         Symbols = new ArrayList<>();
     }
 
-    public AFD generate_directAfd(List<Object> tree, int root) {
+    public AFD generate_directAfd(List<node> tree) {
         read_tree(tree);
         check_calculated_functions();
         find_symbols();
-        create_transitions(root);
+        create_transitions();
 
         return new AFD(transitions_table, States, Symbols, initial_state, acceptance_states);
     }
@@ -36,27 +37,8 @@ public class Direct_AFD {
         return tree_info;
     }
 
-    private void read_tree(List<Object> tree) {
-        // int savedNodes = tree_info.size();
-        // int nodesPassed = 0;
-        // int tree_elements = tree.size();
-        // for (Object element : tree) {
-        // if (element instanceof List) {
-        // read_tree((List<Object>) element);
-        // } else {
-        // RegexToken token = (RegexToken) element;
-        // node newNode = new node(token.getValue(), !token.getIsOperator());
-        // tree_info.add(newNode);
-        // if (savedNodes != 0 | nodesPassed != 0) {
-        // if (nodesPassed != 0 && savedNodes == 0) {
-        // tree_info.get(0).getNodes().add(savedNodes + 1);
-        // }
-        // tree_info.get(savedNodes - (tree_elements - 1)).getNodes().add(savedNodes +
-        // 1);
-        // }
-        // }
-        // nodesPassed++;
-        // }
+    private void read_tree(List<node> tree) {
+        tree_info = (ArrayList<node>) tree;
     }
 
     private static void check_calculated_functions() {
@@ -75,7 +57,8 @@ public class Direct_AFD {
 
     }
 
-    private static void create_transitions(int root) {
+    private static void create_transitions() {
+        int root = tree_info.size() - 1;
         String initialState = tree_info.get(root).getFirstpos().toString().replaceAll("[\\[\\], ]", "");
 
         List<String> transitions = save_transitions(initialState.toCharArray());
@@ -129,63 +112,45 @@ public class Direct_AFD {
     }
 
     public static void main(String[] args) {
-        /* EJEMPLO DE NODOS YA ESTRUCTURADOS */
-        tree_info = new ArrayList<node>();
-        transitions_table = new HashMap<String, List<String>>();
-        States = new ArrayList<>();
-        Symbols = new ArrayList<>();
+        // Ejemplo de uso
+        Calculate_tree calculator = new Calculate_tree();
+        List<RegexToken> postfixExample = new ArrayList<>();
 
-        node a = new node('|', false);
-        a.setName("o1");
-        node b = new node('a', true);
-        b.setName("1");
-        node c = new node('b', true);
-        c.setName("2");
-        node d = new node('*', false);
-        d.setName("o2");
-        node e = new node('‧', false);
-        e.setName("o3");
-        node f = new node('a', true);
-        f.setName("3");
-        node g = new node('‧', false);
-        g.setName("o4");
-        node h = new node('b', true);
-        h.setName("4");
+        // Ejemplo: a b | * a ‧ b ‧ (representa (a|b)* ‧ a ‧ b)
+        postfixExample.add(new RegexToken("a", false));
+        postfixExample.add(new RegexToken("b", false));
+        postfixExample.add(new RegexToken("|", true));
+        postfixExample.add(new RegexToken("*", true));
+        postfixExample.add(new RegexToken("a", false));
+        postfixExample.add(new RegexToken("‧", true));
+        postfixExample.add(new RegexToken("b", false));
+        postfixExample.add(new RegexToken("‧", true));
+        postfixExample.add(new RegexToken("b", false));
+        postfixExample.add(new RegexToken("‧", true));
+        postfixExample.add(new RegexToken("#", false));
+        postfixExample.add(new RegexToken("‧", true));
 
-        tree_info.add(a);
-        tree_info.add(b);
-        tree_info.add(c);
-        tree_info.add(d);
-        tree_info.add(e);
-        tree_info.add(f);
-        tree_info.add(g);
-        tree_info.add(h);
+        postfixExample.forEach(token -> System.out.print(token.getValue() + " "));
+        System.out.println('\n');
 
-        a.getNodes().add(1); // índice de 'a' en tree_info
-        a.getNodes().add(2); // índice de 'b' en tree_info
-        d.getNodes().add(0); // índice de '|' en tree_info
-        e.getNodes().add(3); // índice de '*' en tree_info
-        e.getNodes().add(5); // índice de 'a' en tree_info
-        g.getNodes().add(4); // índice de '.' en tree_info
-        g.getNodes().add(7); // índice de 'b' en tree_info
+        List<node> result = calculator.convertPostfixToTree(postfixExample);
 
-        int root = 4;
-        find_symbols();
-        check_calculated_functions();
-        create_transitions(root);
+        Direct_AFD generator = new Direct_AFD(result);
+        generator.generate_directAfd(result);
+
+        System.out.print("Symbols: ");
+        for (Character blabla : Symbols) {
+            System.out.print(blabla + ", ");
+        }
+        System.out.println();
 
         for (node object : tree_info) {
             System.err.println(object.getName() + ": " + object.isNullable());
-            System.err.println(object.getFirstpos());
-            System.err.println(object.getLastpos());
-            System.err.println(object.getfollowpos());
+            System.err.println("firstpos: " + object.getFirstpos());
+            System.err.println("lastpos: " + object.getLastpos());
+            System.err.println("followpos: " + object.getfollowpos());
             System.err.println();
         }
-
-        for (Character blabla : Symbols) {
-            System.err.print(blabla + ", ");
-        }
-        System.err.println();
 
         for (String s : transitions_table.keySet()) {
             System.err.println(s + "\t" + transitions_table.get(s));
