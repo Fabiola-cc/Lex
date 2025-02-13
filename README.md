@@ -6,7 +6,6 @@ Este laboratorio implementa un conversor de Expresiones Regulares a Autómatas F
 
 - Convierte expresiones regulares a AFD usando el método de conversión directa
 - Soporta varios operadores de expresiones regulares:
-  - Concatenación (‧)
   - Unión (|)
   - Estrella de Kleene (*)
   - Más (+)
@@ -67,7 +66,6 @@ Este laboratorio implementa un conversor de Expresiones Regulares a Autómatas F
 ## Sintaxis de Expresiones Regulares
 
 - `|` : Alternativa (unión)
-- `‧` : Concatenación
 - `*` : Estrella de Kleene (cero o más)
 - `+` : Uno o más
 - `?` : Opcional (cero o uno)
