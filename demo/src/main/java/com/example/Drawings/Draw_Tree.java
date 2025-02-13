@@ -1,6 +1,7 @@
 package com.example.Drawings;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,7 +23,7 @@ public class Draw_Tree {
     private final MutableGraph graph;
     private final AtomicInteger nodeCounter;
     // private static final String OUTPUT_FILENAME = "Syntax_Tree.png";
-    private static String OUTPUT_FILENAME = "Syntax_Tree" + ".png";
+    private static final String OUTPUT_FILENAME = "Syntax_Tree" + ".png";
 
     // Constructor inicializa el grafo y el contador de nodos
     public Draw_Tree() {
@@ -53,9 +54,8 @@ public class Draw_Tree {
                    .toFile(new File(OUTPUT_FILENAME));
             
             System.out.println("Tu imagen del árbol se ha generado como '" + OUTPUT_FILENAME + "'");
-        } catch (Exception e) {
+        } catch (IOException | IllegalArgumentException e) {
             System.err.println("Error al generar el árbol sintáctico: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
