@@ -85,7 +85,9 @@ public class Direct_AFD {
             object.setLastpos(Calculated_functions.getLastPos(object));
         }
         for (node object : tree_info) {
-            Calculated_functions.getFollowPos(object);
+            if (!object.isAlphanumeric()) {
+                Calculated_functions.getFollowPos(object);
+            }
         }
 
     }
@@ -106,9 +108,8 @@ public class Direct_AFD {
      */
     private void create_transitions(int root) {
         // El estado inicial es el firstpos del nodo raíz
-        System.out.println(tree_info.get(root).getValue());
-        System.out.println(tree_info.get(root).isAlphanumeric());
         initialState = tree_info.get(root).getFirstpos();
+        States.add(initialState);
 
         // Solicita la transición basada en el estado inicial
         List<List<String>> transitions = save_transitions(initialState);
