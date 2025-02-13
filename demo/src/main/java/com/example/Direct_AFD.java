@@ -11,26 +11,45 @@ import com.example.models.node;
 
 public class Direct_AFD {
     public static ArrayList<node> tree_info;
-    private static HashMap<String, List<String>> transitions_table;
-    private static List<String> States;
-    private static List<Character> Symbols;
-    public String initial_state;
-    public List<String> acceptance_states;
+    private HashMap<List<String>, List<List<String>>> transitions_table;
+    private HashMap<String, List<String>> Renamed_transitions;
+    private List<List<String>> States;
+    private HashMap<String, List<String>> Renamed_states;
+    private List<Character> Symbols;
+    private String initial_state;
+    private List<String> acceptance_states;
 
     public Direct_AFD(List<node> tree) {
         tree_info = new ArrayList<node>();
-        transitions_table = new HashMap<String, List<String>>();
+        transitions_table = new HashMap<>();
         States = new ArrayList<>();
         Symbols = new ArrayList<>();
+        Renamed_states = new HashMap<>();
+        Renamed_transitions = new HashMap<>();
     }
 
     public AFD generate_directAfd(List<node> tree) {
         read_tree(tree);
-        check_calculated_functions();
         find_symbols();
-        create_transitions();
+        System.out.print("Symbols: ");
+        for (Character blabla : Symbols) {
+            System.out.print(blabla + ", ");
+        }
+        check_calculated_functions();
+        for (node object : tree_info) {
+            System.err.println(object.getName() + ": " + object.isNullable());
+            System.err.println("firstpos: " + object.getFirstpos());
+            System.err.println("lastpos: " + object.getLastpos());
+            System.err.println("followpos: " + object.getfollowpos());
+            System.err.println();
+        }
 
-        return new AFD(transitions_table, States, Symbols, initial_state, acceptance_states);
+        create_transitions();
+        for (List<String> s : transitions_table.keySet()) {
+            System.err.println(s + "\t" + transitions_table.get(s));
+        }
+        List<String> states = (List<String>) Renamed_states.keySet();
+        return new AFD(Renamed_transitions, states, Symbols, initial_state, acceptance_states);
     }
 
     public static ArrayList<node> getTree_info() {
@@ -41,7 +60,7 @@ public class Direct_AFD {
         tree_info = (ArrayList<node>) tree;
     }
 
-    private static void check_calculated_functions() {
+    private void check_calculated_functions() {
         for (node object : tree_info) {
             object.setNullable(Calculated_functions.isNullable(object));
         }
@@ -57,35 +76,68 @@ public class Direct_AFD {
 
     }
 
-    private static void create_transitions() {
-        int root = tree_info.size() - 1;
-        String initialState = tree_info.get(root).getFirstpos().toString().replaceAll("[\\[\\], ]", "");
+    /**
+     * Crea la transición inicial y empieza el loop para el resto de las
+     * transiciones
+     */
+    private void create_transitions() {
+        // Según la definición del árbol la raíz siempre es la última en añadirse al
+        // listado de nodos
+        int root = tree_info.size() - 2;
+        // El estado inicial es el firstpos del nodo raíz
+        List<String> initialState = tree_info.get(root).getFirstpos();
 
-        List<String> transitions = save_transitions(initialState.toCharArray());
-        transitions_table.put(initialState, transitions);
+        // Solicita la transición basada en el estado inicial
+        List<List<String>> transitions = save_transitions(initialState);
+
+        // Guarda la primera transición en la tabla definida
+        transitions_table.put(initialState, transitions); // TRANSITIONS: CAMBIAR TIPO
 
         state_transitions(transitions);
     }
 
-    private static List<String> save_transitions(char[] state) {
-        Map<Character, List<String>> grupos = new HashMap<>();
-        for (Character actualNode : state) {
-            node n = tree_info.get(getTreeIndex(actualNode.toString()));
+    /*
+     * Genera las transiciones del estado correspondiente
+     */
+    private List<List<String>> save_transitions(List<String> state) {
+        // Cada estado es un list string, se transiciona a varios estados
+        Map<Character, List<List<String>>> grupos = new HashMap<>();
+        // Busca la transición de cada nodo según su valor
+        for (String actualNode : state) {
+            node n = tree_info.get(getTreeIndex(actualNode));
+            // Si la transición para el símbolo no ha sido guardado se añade al mapa
             grupos.computeIfAbsent(n.getValue(), k -> new ArrayList<>())
-                    .add(n.getfollowpos().toString().replaceAll("[\\[\\], ]", ""));
+                    .add(n.getfollowpos()); // añade la transición a un nuevo estado
         }
-        List<String> result = new ArrayList<>();
+        // Lista de estados a los que se transiciona
+        List<List<String>> result = new ArrayList<>();
         for (Character c : grupos.keySet()) {
-            result.add(grupos.get(c).toString().replaceAll("[\\[\\], ]", ""));
+            List<String> newState = new ArrayList<>();
+            for (List<String> list : grupos.get(c)) {
+                for (String nodeString : list) {
+                    if (!newState.contains(nodeString)) {
+                        newState.add(nodeString);
+                    }
+                }
+            }
+            result.add(newState);
         }
         return result;
     }
 
-    private static void state_transitions(List<String> transitions) {
-        for (String state : transitions) {
+    /**
+     * @param transitions
+     * 
+     *                    Crea las nuevas transiciones basado en las creadas con el
+     *                    estado inicial
+     */
+    private void state_transitions(List<List<String>> transitions) {
+        int counter = 0;
+        for (List<String> state : transitions) {
             if (!States.contains(state)) {
                 States.add(state);
-                List<String> actual_transitions = save_transitions(state.toCharArray());
+                Renamed_states.put("S" + counter, state);
+                List<List<String>> actual_transitions = save_transitions(state);
 
                 transitions_table.put(state, actual_transitions);
                 state_transitions(actual_transitions);
@@ -93,7 +145,7 @@ public class Direct_AFD {
         }
     }
 
-    private static void find_symbols() {
+    private void find_symbols() {
         for (node object : tree_info) {
             if (object.isAlphanumeric() && !Symbols.contains(object.getValue())) {
                 Symbols.add(object.getValue());
@@ -112,6 +164,7 @@ public class Direct_AFD {
     }
 
     public static void main(String[] args) {
+
         // Ejemplo de uso
         Calculate_tree calculator = new Calculate_tree();
         List<RegexToken> postfixExample = new ArrayList<>();
@@ -127,8 +180,6 @@ public class Direct_AFD {
         postfixExample.add(new RegexToken("‧", true));
         postfixExample.add(new RegexToken("b", false));
         postfixExample.add(new RegexToken("‧", true));
-        postfixExample.add(new RegexToken("#", false));
-        postfixExample.add(new RegexToken("‧", true));
 
         postfixExample.forEach(token -> System.out.print(token.getValue() + " "));
         System.out.println('\n');
@@ -139,7 +190,7 @@ public class Direct_AFD {
         generator.generate_directAfd(result);
 
         System.out.print("Symbols: ");
-        for (Character blabla : Symbols) {
+        for (Character blabla : generator.Symbols) {
             System.out.print(blabla + ", ");
         }
         System.out.println();
@@ -152,8 +203,8 @@ public class Direct_AFD {
             System.err.println();
         }
 
-        for (String s : transitions_table.keySet()) {
-            System.err.println(s + "\t" + transitions_table.get(s));
+        for (List<String> s : generator.transitions_table.keySet()) {
+            System.err.println(s + "\t" + generator.transitions_table.get(s));
         }
     }
 }
