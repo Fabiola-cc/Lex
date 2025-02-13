@@ -12,6 +12,12 @@ public class ShuntingYard {
             "*", 3 // Cierre de Kleene
     );
 
+    /**
+     * Convierte una expresión regular en una lista de tokens (componentes básicos de la expresión).
+     * Este método procesa la expresión regular caracter por caracter y genera una lista de tokens.
+     * @param regex Expresión regular que se convertirá en una lista de tokens.
+     * @return Lista de tokens que representan los componentes de la expresión regular.
+     */
     public static List<RegexToken> convertToArray(String regex) {
         List<RegexToken> tokens = new ArrayList<>();
 
@@ -86,7 +92,12 @@ public class ShuntingYard {
         return addImplicitConcatenation(tokens);
     }
 
-
+    /**
+     * Añade la concatenación implícita entre los tokens cuando sea necesario.
+     * Este método revisa si existen patrones donde es necesario insertar un operador de concatenación.
+     * @param tokens Lista de tokens que representan la expresión regular en notación infija.
+     * @return Lista de tokens modificada, con concatenación implícita añadida cuando corresponde.
+     */
     private static List<RegexToken> addImplicitConcatenation(List<RegexToken> tokens) {
         List<RegexToken> output = new ArrayList<>();
 
@@ -119,7 +130,7 @@ public class ShuntingYard {
                     output.add(new RegexToken("‧", true)); // Agregar concatenación
                 }
 
-                if (isCurrentCloseParen && isNextOpenParen) {
+                if ((isCurrentCloseParen && isNextOpenParen)|| (!isCurrentOperator && isNextOpenParen)) {
                     output.add(new RegexToken("‧", true));
                 }
 
@@ -129,6 +140,12 @@ public class ShuntingYard {
         return output;
     }
 
+    /**
+     * Encuentra el índice del paréntesis de apertura correspondiente a un paréntesis de cierre en la expresión regular.
+     * Recorre los tokens en busca del paréntesis de apertura correspondiente a un paréntesis de cierre dado.
+     * @param tokens Lista de tokens que representan la expresión regular en notación infija.
+     * @return El índice del paréntesis de apertura correspondiente.
+     */
     private static int findMatchingOpenParen(List<RegexToken> tokens) {
         int balance = 0;
         for (int i = tokens.size() - 1; i >= 0; i--) {
@@ -144,7 +161,12 @@ public class ShuntingYard {
         return -1; // No se encontró un `(`
     }
 
-
+    /**
+     * Convierte una lista de tokens en notación infija a notación postfix utilizando el algoritmo de Shunting Yard.
+     * Este método aplica el algoritmo de Shunting Yard para cambiar la expresión regular de notación infija a postfix.
+     * @param infix Lista de tokens que representan la expresión regular en notación infija.
+     * @return Lista de tokens en notación postfix.
+     */
     public static List<RegexToken> shuntingYard(List<RegexToken> infix) {
         List<RegexToken> output = new ArrayList<>();
         Stack<RegexToken> operatorStack = new Stack<>();
@@ -177,6 +199,12 @@ public class ShuntingYard {
         return output;
     }
 
+    /**
+     * Expande una referencia de expresión regular dentro de corchetes (por ejemplo, [a-z], [0-9]).
+     * Este método genera todos los caracteres que corresponden a un rango de caracteres dentro de corchetes.
+     * @param regexReference El rango de caracteres que se va a expandir (por ejemplo, "a-z").
+     * @param output Lista donde se agregarán los tokens resultantes de la expansión del rango.
+     */
     public static void expandRegex(String regexReference, List<RegexToken> output) {
         int i = 0;
         while (i < regexReference.length()) {
@@ -210,6 +238,12 @@ public class ShuntingYard {
         }
     }
 
+    /**
+     * Expande una referencia de expresión regular con negación dentro de corchetes (por ejemplo, [^a-z]).
+     * Este método genera todos los caracteres que no están en el rango de caracteres dentro de corchetes.
+     * @param regexReference El rango de caracteres negado que se va a expandir (por ejemplo, "[^a-z]").
+     * @param output Lista donde se agregarán los tokens resultantes de la expansión de la negación.
+     */
     public static void expandRegexNegation(String regexReference, List<RegexToken> output) {
         int i = 0;
         while (i < regexReference.length()) {
@@ -243,7 +277,13 @@ public class ShuntingYard {
         }
     }
 
-
+    /**
+     * Extrae el contenido dentro de corchetes en una expresión regular.
+     * Este método extrae el texto que está dentro de los corchetes en la expresión regular.
+     * @param regex Expresión regular que contiene los corchetes.
+     * @param startIndex Índice donde comienza la búsqueda de corchetes.
+     * @return El contenido dentro de los corchetes como una cadena.
+     */
     private static String extractBracketContent(String regex, int startIndex) {
         StringBuilder brackets = new StringBuilder();
         int i = startIndex;
@@ -260,6 +300,13 @@ public class ShuntingYard {
         }
     }
 
+    /**
+     * Calcula la diferencia entre dos rangos de caracteres y genera una nueva expresión regular con el resultado.
+     * Este método obtiene la diferencia entre dos rangos de caracteres, generando un nuevo conjunto de caracteres.
+     * @param range1 Primer rango de caracteres.
+     * @param range2 Segundo rango de caracteres con el que se calculará la diferencia.
+     * @param output Lista donde se agregarán los tokens resultantes de la diferencia de los rangos.
+     */
     public static void calculateRangeDifference(String range1, String range2, List<RegexToken> output) {
         // Convertimos los rangos en listas de caracteres
         char start1 = range1.charAt(0);  // Inicia el primer rango
@@ -299,6 +346,7 @@ public class ShuntingYard {
 
 
     public static void main(String[] args) {
+        System.out.println("Headless mode: " + java.awt.GraphicsEnvironment.isHeadless());
         Scanner scanner = new Scanner(System.in);
 
         // Solicitar al usuario que ingrese una expresión regular
