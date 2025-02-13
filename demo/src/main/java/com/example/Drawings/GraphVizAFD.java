@@ -9,8 +9,6 @@ import java.util.Map;
 
 import com.example.models.AFD;
 
-import guru.nidi.graphviz.attribute.Color;
-import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import static guru.nidi.graphviz.model.Factory.mutGraph;
@@ -30,29 +28,37 @@ public class GraphVizAFD {
 
     public void draw() throws IOException {
         MutableGraph graph = mutGraph("afd").setDirected(true);
-        
-        // Crear mapa de nodos
         Map<String, MutableNode> nodes = new HashMap<>();
         
-        // Crear todos los nodos
+        // Crear nodos
         for (String state : automaton.getStates()) {
-            MutableNode node = mutNode(state);
-            
-            // Estilo para estados de aceptación
-            if (automaton.getAcceptance_states().contains(state)) {
-                node.add(Style.BOLD);
-            }
-            
-            // Estilo para estado inicial
+            MutableNode node = mutNode(state)
+                .add("shape", "circle")
+                .add("style", "filled");
+
+            // Asignar color según el tipo de estado
             if (state.equals(automaton.getInitial_state())) {
-                node.add(Color.rgb("87CEEB").fill()); // Azul claro
+                node.add("fillcolor", "#87CEEB");  // Estado inicial: azul claro
+            } else if (automaton.getAcceptance_states().contains(state)) {
+                node.add("fillcolor", "#98FB98");  // Estado final: verde claro
+                node.add("peripheries", "2");      // Doble círculo para estados finales
             } else {
-                node.add(Color.YELLOW.fill());
+                node.add("fillcolor", "yellow");   // Estados normales: amarillo
             }
             
             nodes.put(state, node);
             graph.add(node);
         }
+
+        // Agregar flecha inicial punteada
+        MutableNode start = mutNode("Inicio")
+            .add("shape", "none")
+            .add("width", "0");
+        graph.add(start);
+        start.addLink(
+            to(nodes.get(automaton.getInitial_state()))
+            .with("style", "dashed")
+        );
         
         // Agregar transiciones
         HashMap<String, List<String>> transitions = automaton.getTransitions_table();
@@ -63,18 +69,15 @@ public class GraphVizAFD {
             for (int i = 0; i < toStates.size(); i++) {
                 String toState = toStates.get(i);
                 if (toState != null && !toState.isEmpty()) {
-                    String symbol = String.valueOf(alphabet.get(i));
                     nodes.get(fromState).addLink(
                         to(nodes.get(toState))
-                        .with("label", symbol)
+                        .with("label", alphabet.get(i).toString())
                     );
                 }
             }
         }
 
-        // Configurar y guardar el grafo
         Graphviz.fromGraph(graph)
-            .width(800)
             .render(Format.PNG)
             .toFile(new File(outputFile));
     }
@@ -86,7 +89,6 @@ public class GraphVizAFD {
         transitions.put("q1", Arrays.asList("q2", "q1"));
         transitions.put("q2", Arrays.asList("q0", "q1"));
         
-        
         AFD afd = new AFD(
             transitions,
             Arrays.asList("q0", "q1", "q2"),
@@ -94,7 +96,6 @@ public class GraphVizAFD {
             "q0",
             Arrays.asList("q0")
         );
-
         
         GraphVizAFD drawer = new GraphVizAFD(afd, "automaton.png");
         drawer.draw();
