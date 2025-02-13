@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.example.Drawings.Draw_Tree;
 import com.example.Drawings.GraphVizAFD;
 import com.example.models.AFD;
 import com.example.models.RegexToken;
@@ -58,8 +59,14 @@ public class Main {
                     "Children=" + n.getNodes());
         }
         System.out.println();
+        System.out.println("\n Generando imagen de árbol...");
+        // Create image of tree
+        Draw_Tree drawer = new Draw_Tree();
+        drawer.visualizeTree(treeNodes);
+        System.out.println("Puedes ver tu árbol como 'Syntax_Tree.png'");
+        
 
-
+ 
         // Step 4: Create Direct AFD from syntax tree
         System.out.println("\nStep 3: Generating AFD");
         Direct_AFD generator = new Direct_AFD();
