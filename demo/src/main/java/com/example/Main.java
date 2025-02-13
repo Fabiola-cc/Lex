@@ -24,7 +24,7 @@ public class Main {
         List<RegexToken> postfixTokens = ShuntingYard.shuntingYard(infixTokens);
 
         // Print the postfix expression for verification
-        System.out.println("Postfix expression:");
+        System.out.println("Postfix expression");
         for (RegexToken token : postfixTokens) {
             System.out.print(token.getValue() + " ");
         }
@@ -51,24 +51,30 @@ public class Main {
         drawer.visualizeTree(treeNodes);
 
         // Step 4: Create Direct AFD from syntax tree
-        System.out.println("\nGenerating AFD...");
+        System.out.println("\nStep 3: Generating AFD");
         Direct_AFD generator = new Direct_AFD();
 
         // Generate the AFD
         AFD model = generator.generate_directAfd(treeNodes);
+        System.out.println("AFD results:");
+        model.printAFD();
 
         // Create image of AFD
         Draw_AFD drawerAfd = new Draw_AFD(model);
         drawerAfd.displayAutomaton();
 
         // Step 5: Minimize the AFD (optional)
+        System.out.println("\nStep 4: Try to Minimize AFD");
         AFD miniAfd = model.minimize();
+        System.out.println("AFD Minimization results:");
+        model.printAFD();
 
         // Create image of minimized AFD
         Draw_AFD drawerMini = new Draw_AFD(miniAfd);
         drawerMini.displayAutomaton();
 
         // Step 6: Checks if a string is valid in AFD
+        System.out.println("\nStep 5: Check string");
         System.out.print("Enter a string to check with the AFD: ");
         String inputString = scanner.nextLine() + "#";
 
@@ -76,9 +82,9 @@ public class Main {
         Boolean result = miniAfd.accepted(derivationProcess.get(derivationProcess.size() - 1).get(0),
                 miniAfd.getAcceptance_states());
         if (result) {
-            System.out.println("La cadena es aceptada");
+            System.out.println("\nLa cadena es aceptada");
         } else {
-            System.out.println("La cadena no es aceptada");
+            System.out.println("\nLa cadena no es aceptada");
         }
 
     }
