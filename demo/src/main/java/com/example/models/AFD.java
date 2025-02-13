@@ -75,7 +75,7 @@ public class AFD {
         String transited_state = "";
         List<String> transitions = transitions_table.get(q);
         for (int i = 0; i < alphabet.size(); i++) {
-            if (alphabet.get(i).equals(symbol)) {
+            if (symbol.equals(String.valueOf(alphabet.get(i)))) {
                 transited_state = transitions.get(i);
             }
         }
@@ -99,10 +99,9 @@ public class AFD {
      * q --> state
      * w --> string
      * F --> Acceptance state
-     * d --> list of transitions
      */
-    public Boolean accepted(String q, String w, List<String> F) {
-        return F.contains(final_state(q, w));
+    public Boolean accepted(String q, List<String> F) {
+        return F.contains(q);
     }
 
     /*
@@ -121,6 +120,12 @@ public class AFD {
                 ArrayList<String> actualT = new ArrayList<>();
                 actualT.add(state);
                 actualT.add(String.valueOf(w.charAt(i)));
+
+                if (String.valueOf(w.charAt(i)).equals("#") && i == w.length() - 1) {
+                    // Detenerse al llegar al centinela
+                    transitions.add(actualT);
+                    break;
+                }
 
                 state = transition(state, w.charAt(i) + "");
                 actualT.add(state);
@@ -384,4 +389,17 @@ public class AFD {
         return new AFD(newTransitions, newStates, alphabet, newInitialState, newAcceptanceStates);
     }
 
+    public void printAFD() {
+        System.out.println("\n Alfabeto: " + alphabet.toString());
+
+        System.out.println("\n Estado inicial: " + initial_state);
+
+        System.out.println("\n Estados de aceptación" + acceptance_states.toString());
+
+        System.out.println("\n TRANSICIONES");
+        for (String ns : transitions_table.keySet()) {
+            System.out.println(ns + "\t" + transitions_table.get(ns));
+        }
+
+    }
 }
