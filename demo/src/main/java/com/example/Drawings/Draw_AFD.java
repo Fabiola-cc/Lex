@@ -6,7 +6,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;  // Explicitly import from java.util
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -152,5 +154,25 @@ public class Draw_AFD extends JPanel {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
+
+    public static void main(String[] args) {
+        HashMap<String, List<String>> transitions = new HashMap<>();
+        transitions.put("q0", Arrays.asList("q0", "q1"));
+        transitions.put("q1", Arrays.asList("q2", "q0"));
+        transitions.put("q2", Arrays.asList("q1", "q2"));
+        
+        // Create the AFD
+        AFD divisibilityAFD = new AFD(
+            transitions,                     
+            Arrays.asList("q0", "q1", "q2"),  
+            Arrays.asList('0', '1'),         
+            "q0",                           
+            Arrays.asList("q0")             
+        );
+        
+        // Create and display the visualization
+        Draw_AFD drawer = new Draw_AFD(divisibilityAFD);
+        drawer.displayAutomaton();
+        }
 
 }
