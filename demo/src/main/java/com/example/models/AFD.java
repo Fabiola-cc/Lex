@@ -64,27 +64,55 @@ public class AFD {
         this.acceptance_states = acceptance_states;
     }
 
-    private String transition(String q, char a, String[][] d) {
+    /*
+     * q --> state
+     * a --> alphabet element
+     * d --> list of transitions
+     * 
+     * @return transition's value
+     */
+    private String transition(String q, String symbol) {
         String transited_state = "";
-        for (String[] d1 : d) {
-            if (d1[0].equals(q) && d1[1].equals(Character.toString(a))) {
-                transited_state = d1[2];
+        List<String> transitions = transitions_table.get(q);
+        for (int i = 0; i < alphabet.size(); i++) {
+            if (alphabet.get(i).equals(symbol)) {
+                transited_state = transitions.get(i);
             }
         }
         return transited_state;
     }
 
-    private String final_state(String q, String w, String[][] d) {
-        char value = w.charAt(w.length() - 1);
+    /*
+     * q --> state
+     * w --> string to check
+     * d --> list of transitions
+     * 
+     * @return final state of string
+     */
+    private String final_state(String q, String w) {
+        String value = w.charAt(w.length() - 1) + "";
 
-        return transition(String.valueOf(q), value, d);
+        return transition(String.valueOf(q), value);
     }
 
-    public Boolean accepted(String q, String w, String[] F, String[][] d) {
-        return Arrays.asList(F).contains(final_state(q, w, d));
+    /*
+     * q --> state
+     * w --> string
+     * F --> Acceptance state
+     * d --> list of transitions
+     */
+    public Boolean accepted(String q, String w, List<String> F) {
+        return F.contains(final_state(q, w));
     }
 
-    public ArrayList<ArrayList<String>> derivation(String q, String w, String[][] d) {
+    /*
+     * q --> state
+     * w --> string
+     * d --> list of transitions
+     * 
+     * @return secuence of states
+     */
+    public ArrayList<ArrayList<String>> derivation(String q, String w) {
         String state = q;
         ArrayList<ArrayList<String>> transitions = new ArrayList<>();
 
@@ -94,7 +122,7 @@ public class AFD {
                 actualT.add(state);
                 actualT.add(String.valueOf(w.charAt(i)));
 
-                state = transition(state, w.charAt(i), d);
+                state = transition(state, w.charAt(i) + "");
                 actualT.add(state);
 
                 transitions.add(actualT);
