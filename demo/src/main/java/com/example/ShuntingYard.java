@@ -10,12 +10,11 @@ public class ShuntingYard {
             "|", 1,  // Unión
             "‧", 2,  // Concatenación
             "*", 3,  // Cierre de Kleene
-            "+", 4   // Una o más repeticiones
+            "+", 4 // Una o más repeticiones
     );
 
     public static List<RegexToken> convertToArray(String regex) {
-        List<RegexToken> output = new ArrayList<>();
-        boolean needsConcatenation = false; // Indica si hay que agregar "‧"
+        List<RegexToken> tokens = new ArrayList<>();
 
         for (int i = 0; i < regex.length(); i++) {
             String c = String.valueOf(regex.charAt(i));
@@ -26,69 +25,95 @@ public class ShuntingYard {
                 String content = extractBracketContent(regex, i);
                 if (i + 5 < regex.length() && regex.charAt(i + 5) == '#') {
                     String range2 = extractBracketContent(regex, i + 6);
-                    calculateRangeDifference(content, range2, output);
+                    calculateRangeDifference(content, range2, tokens);
                     i += 10;
-                    needsConcatenation = true;
-                }
-                else {
-                    expandRegex(content, output);
+                } else {
+                    expandRegex(content, tokens);
                     i += content.length() + 1;
-                    needsConcatenation = true;
                 }
             } else if (c.equals("\\")) {
                 String literal = String.valueOf(regex.charAt(i + 1));
-                if (needsConcatenation) {
-                    output.add(new RegexToken("‧", true));
-                }
-                output.add(new RegexToken(literal, false));
+                tokens.add(new RegexToken(literal, false));
                 i++;
-                needsConcatenation = true;
             } else if (c.equals("^")) {
                 String next = String.valueOf(regex.charAt(i + 1));
                 if (next.equals("[")) {
                     String content = extractBracketContent(regex, i + 1);
-                    expandRegexNegation(content, output);
+                    expandRegexNegation(content, tokens);
                     i = i + content.length() + 2;
                 } else {
-                    output.add(new RegexToken("^"+ next, false));
+                    tokens.add(new RegexToken("^" + next, false));
                     i++;
                 }
-                output.add(new RegexToken("‧", true));
-            } else if (c.equals("?")){
-                output.remove(output.size() - 1);
-                output.add(new RegexToken("(", true));
-                output.add(new RegexToken(String.valueOf(regex.charAt(i - 1)), false));
-                output.add(new RegexToken("|", true));
-                output.add(new RegexToken("\0", false));
-                output.add(new RegexToken(")", true));
-            } else if (!isOperator) {
-                if (needsConcatenation) {
-                    output.add(new RegexToken("‧", true)); // Agregamos concatenación implícita
-                } if (c.equals("(")) {
-                    output.add(new RegexToken(c, true));
-                } else if (c.equals(")")) {
-                    output.add(new RegexToken(c, true));
-                    needsConcatenation = true;
-                } else {
-                    output.add(token);
-                }
-                needsConcatenation = false;
+            } else if (c.equals("?")) {
+                tokens.remove(tokens.size() - 1);
+                tokens.add(new RegexToken("(", true));
+                tokens.add(new RegexToken(String.valueOf(regex.charAt(i - 1)), false));
+                tokens.add(new RegexToken("|", true));
+                tokens.add(new RegexToken("\0", false));
+                tokens.add(new RegexToken(")", true));
             } else {
-                output.add(token);
-                needsConcatenation = false; // No concatenar después de operadores `|`, `*`, `+`
-            }
+                if(c.equals("(") || c.equals(")")) {
+                    tokens.add(new RegexToken(c, true));
+                }
+                else{
+                    tokens.add(token);
+                }
 
-            if (c.equals("*") || c.equals("+")) {
-                needsConcatenation = true;
             }
-
-            if (i + 1 < regex.length() && String.valueOf(regex.charAt(i + 1)).equals("[")) {
-                output.add(new RegexToken("‧", true));
-            }
-
         }
+
+        return addImplicitConcatenation(tokens);
+    }
+
+
+    private static List<RegexToken> addImplicitConcatenation(List<RegexToken> tokens) {
+        List<RegexToken> output = new ArrayList<>();
+
+        for (int i = 0; i < tokens.size(); i++) {
+            RegexToken current = tokens.get(i);
+            output.add(current);
+
+            if (i < tokens.size() - 1) {
+                RegexToken next = tokens.get(i + 1);
+
+                boolean isCurrentOperator = current.getIsOperator();
+                boolean isNextOperator = next.getIsOperator();
+
+                boolean isCurrentCloseParen = current.getValue().equals(")");
+                boolean isNextOpenParen = next.getValue().equals("(");
+                boolean isNextPipeOrCloseParen = next.getValue().equals("|") || next.getValue().equals(")");
+
+                // Concatenación implícita: Si un operador no es seguido por otro operador, agregamos la concatenación
+                if (!isCurrentOperator && !isNextOperator && !isCurrentCloseParen && !isNextPipeOrCloseParen) {
+                    output.add(new RegexToken("‧", true)); // Concatenación implícita
+                }
+
+                // Si un operador * o + es seguido de un paréntesis de apertura, también agregamos la concatenación
+                if ((isCurrentOperator && (current.getValue().equals("*") || current.getValue().equals("+"))) && isNextOpenParen) {
+                    output.add(new RegexToken("‧", true)); // Agregar concatenación
+                }
+
+                // Si hay un paréntesis de cierre seguido de un token que no es operador ni pipe, agregamos la concatenación
+                if (isCurrentCloseParen && !isNextOperator) {
+                    output.add(new RegexToken("‧", true)); // Agregar concatenación
+                }
+
+                if (isCurrentCloseParen && isNextOpenParen) {
+                    output.add(new RegexToken("‧", true));
+                }
+            }
+        }
+
         return output;
     }
+
+
+
+
+
+
+
 
     public static List<RegexToken> shuntingYard(List<RegexToken> infix) {
         List<RegexToken> output = new ArrayList<>();
