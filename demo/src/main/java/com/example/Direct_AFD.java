@@ -1,6 +1,7 @@
 package com.example;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ public class Direct_AFD {
 
         get_AcceptedNodes(root);
         create_transitions(root);
+        System.out.println("Tabla de transiciones");
+        System.out.println("\t" + Symbols);
         for (List<String> s : transitions_table.keySet()) {
             System.out.println(s + "\t" + transitions_table.get(s));
         }
@@ -109,6 +112,7 @@ public class Direct_AFD {
     private void create_transitions(int root) {
         // El estado inicial es el firstpos del nodo raíz
         initialState = tree_info.get(root).getFirstpos();
+
         States.add(initialState);
 
         // Solicita la transición basada en el estado inicial
@@ -125,10 +129,21 @@ public class Direct_AFD {
      */
     private List<List<String>> save_transitions(List<String> state) {
         // Cada estado es un list string, se transiciona a varios estados
-        Map<Character, List<List<String>>> grupos = new HashMap<>();
+        Map<Character, List<List<String>>> grupos = new LinkedHashMap<>();
         // Busca la transición de cada nodo según su valor
         for (String actualNode : state) {
             node n = tree_info.get(getTreeIndex(actualNode));
+
+            // Crear tansiciones 'vacías' para cada símbolo
+            for (Character simbolo : Symbols) {
+                // Verifica si hay transiciones para este símbolo, si no, crea una vacía
+                grupos.computeIfAbsent(simbolo, k -> new ArrayList<>());
+            }
+
+            if (n.getValue() == '#' && getTreeIndex(actualNode) == tree_info.size() - 2) {
+                break;
+            }
+
             // Si la transición para el símbolo no ha sido guardado se añade al mapa
             grupos.computeIfAbsent(n.getValue(), k -> new ArrayList<>())
                     .add(n.getfollowpos()); // añade la transición a un nuevo estado
@@ -144,9 +159,7 @@ public class Direct_AFD {
                     }
                 }
             }
-            if (!newState.isEmpty()) {
-                result.add(newState);
-            }
+            result.add(newState);
         }
         return result;
     }
@@ -159,19 +172,21 @@ public class Direct_AFD {
      */
     private void state_transitions(List<List<String>> transitions) {
         for (List<String> state : transitions) {
-            if (!States.contains(state)) {
-                States.add(state);
-                List<List<String>> actual_transitions = save_transitions(state);
+            if (state.size() != 0) {
+                if (!States.contains(state)) {
+                    States.add(state);
+                    List<List<String>> actual_transitions = save_transitions(state);
 
-                // Guardar estados de aceptación, es decir, aquellos que contienen nodos finales
-                for (String value : acceptedNodes) {
-                    if (state.contains(value)) {
-                        acceptanceStates.add(state);
+                    // Guardar estados de aceptación, es decir, aquellos que contienen nodos finales
+                    for (String value : acceptedNodes) {
+                        if (state.contains(value)) {
+                            acceptanceStates.add(state);
+                        }
                     }
-                }
 
-                transitions_table.put(state, actual_transitions);
-                state_transitions(actual_transitions);
+                    transitions_table.put(state, actual_transitions);
+                    state_transitions(actual_transitions);
+                }
             }
         }
     }
@@ -182,8 +197,12 @@ public class Direct_AFD {
     private void rename_transitions() {
         // Genera los nuevos nombres para los estados, basado en su posición
         for (List<String> state : States) {
-            int stateName = States.size() - States.indexOf(state);
-            Renamed_states.put(state, "S" + stateName);
+            if (state.size() == 0) {
+                Renamed_states.put(state, "");
+            } else {
+                int stateName = States.indexOf(state);
+                Renamed_states.put(state, "S" + stateName);
+            }
         }
 
         // Registra el estado inicial renombrado

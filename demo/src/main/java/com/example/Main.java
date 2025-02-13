@@ -67,7 +67,7 @@ public class Main {
         System.out.println("\nStep 4: Try to Minimize AFD");
         AFD miniAfd = model.minimize();
         System.out.println("AFD Minimization results:");
-        model.printAFD();
+        miniAfd.printAFD();
 
         // Create image of minimized AFD
         Draw_AFD drawerMini = new Draw_AFD(miniAfd);
@@ -78,14 +78,15 @@ public class Main {
         System.out.print("Enter a string to check with the AFD: ");
         String inputString = scanner.nextLine() + "#";
 
-        ArrayList<ArrayList<String>> derivationProcess = miniAfd.derivation(miniAfd.getInitial_state(), inputString);
-        Boolean result = miniAfd.accepted(derivationProcess.get(derivationProcess.size() - 1).get(0),
-                miniAfd.getAcceptance_states());
-        if (result) {
+        ArrayList<ArrayList<String>> derivationProcessO = model.derivation(model.getInitial_state(), inputString);
+        Boolean resultO = model.accepted(derivationProcessO.get(derivationProcessO.size() - 1).get(0),
+                model.getAcceptance_states());
+        if (resultO) {
             System.out.println("\nLa cadena es aceptada");
         } else {
             System.out.println("\nLa cadena no es aceptada");
         }
 
+        scanner.close();
     }
 }

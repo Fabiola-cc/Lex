@@ -166,7 +166,7 @@ public class AFD {
 
         for (String stateFrom : transitions_table.keySet()) {
             List<String> transition = transitions_table.get(stateFrom);
-            for (int i = 0; i < alphabet.size(); i++) {
+            for (int i = 0; i < transition.size(); i++) {
                 String symbol = alphabet.get(i) + "";
                 String stateTo = (transition.get(i) != null) ? transition.get(i) : "";
 
@@ -272,9 +272,8 @@ public class AFD {
             for (String originalState : states) {
                 if (newState.contains(originalState) && transitions_table.containsKey(originalState)) {
                     List<String> transition = transitions_table.get(originalState);
-                    for (int i = 0; i < alphabet.size(); i++) {
+                    for (int i = 0; i < transition.size(); i++) {
                         String destination = (transition.get(i) != null) ? transition.get(i) : "";
-                        ;
 
                         for (String combined : combinedStates) {
                             if (combined.contains(destination)) {
