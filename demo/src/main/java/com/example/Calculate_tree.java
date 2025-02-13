@@ -51,6 +51,12 @@ public class Calculate_tree {
             handleOperator(token);
         }
     }
+    node nodofinal = createNode('F', false);
+    nodofinal.setName("Final");
+    nodofinal.getNodes().add(treeNodes.size()-1);
+    treeNodes.add(nodofinal);
+
+
     return treeNodes;
   }
 
