@@ -101,22 +101,20 @@ public class AFD {
         ArrayList<ArrayList<String>> transitions = new ArrayList<>();
 
         for (int i = 0; i < w.length(); i++) {
-            if (w.charAt(i) != ' ') {
-                ArrayList<String> actualT = new ArrayList<>();
-                actualT.add(state);
-                actualT.add(String.valueOf(w.charAt(i)));
+            ArrayList<String> actualT = new ArrayList<>();
+            actualT.add(state);
+            actualT.add(String.valueOf(w.charAt(i)));
 
-                if (String.valueOf(w.charAt(i)).equals("#") && i == w.length() - 1) {
-                    // Detenerse al llegar al centinela
-                    transitions.add(actualT);
-                    break;
-                }
-
-                state = transition(state, w.charAt(i) + "");
-                actualT.add(state);
-
+            if (String.valueOf(w.charAt(i)).equals("#") && i == w.length() - 1) {
+                // Detenerse al llegar al centinela
                 transitions.add(actualT);
+                break;
             }
+
+            state = transition(state, w.charAt(i) + "");
+            actualT.add(state);
+
+            transitions.add(actualT);
 
         }
 

@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 
-import com.example.Drawings.Draw_AFD;
 import com.example.models.AFD;
-import com.example.models.RegexToken;
 import com.example.models.node;
 
 public class Direct_AFD {
@@ -134,8 +132,9 @@ public class Direct_AFD {
      * @param root Índice de la raíz del árbol
      */
     private void get_AcceptedNodes(int root) {
-        node rootNode = tree_info.get(root);
+        node rootNode = tree_info.get(root - 2);
         acceptedNodes = rootNode.getLastpos();
+        acceptedNodes.add(tree_info.get(root - 1).getName());
     }
 
     /**
