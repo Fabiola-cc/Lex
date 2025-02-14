@@ -56,12 +56,25 @@ public class ShuntingYard {
                     i++;
                 }
             } else if (c.equals("?")) {
-                tokens.remove(tokens.size() - 1);
-                tokens.add(new RegexToken("(", true));
-                tokens.add(new RegexToken(String.valueOf(regex.charAt(i - 1)), false));
-                tokens.add(new RegexToken("|", true));
-                tokens.add(new RegexToken("\0", false));
-                tokens.add(new RegexToken(")", true));
+                RegexToken prevToken = tokens.get(tokens.size() - 1);
+                if (prevToken.getValue().equals(")")) {
+                    int parenIndex = tokens.size() -1 ;
+                    while (!tokens.get(parenIndex).getValue().equals("(")) {
+                        parenIndex--;
+                    }
+                    tokens.add(parenIndex, new RegexToken("(", true));
+                    tokens.add(new RegexToken("|", true));
+                    tokens.add(new RegexToken("\0", false));
+                    tokens.add(new RegexToken(")", true));
+                }
+                else {
+                    tokens.remove(tokens.size() - 1);
+                    tokens.add(new RegexToken("(", true));
+                    tokens.add(new RegexToken(String.valueOf(regex.charAt(i - 1)), false));
+                    tokens.add(new RegexToken("|", true));
+                    tokens.add(new RegexToken("\0", false));
+                    tokens.add(new RegexToken(")", true));
+                }
             } else if (c.equals("+")) {
                 if (!tokens.isEmpty()) {
                     RegexToken prevToken = tokens.get(tokens.size() - 1);
