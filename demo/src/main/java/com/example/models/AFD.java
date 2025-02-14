@@ -277,6 +277,7 @@ public class AFD {
             List<String> transitionsList = new ArrayList<>(Collections.nCopies(alphabet.size(), "")); // Iniciar con
                                                                                                       // tamaño fijo
 
+            // Iterar sobre los estados originales que forman parte del estado combinado
             for (String originalState : states) {
                 if (newState.contains(originalState) && transitions_table.containsKey(originalState)) {
                     List<String> transition = transitions_table.get(originalState);
@@ -284,18 +285,21 @@ public class AFD {
                     for (int i = 0; i < transition.size(); i++) {
                         String destination = transition.get(i) != null ? transition.get(i) : "";
 
-                        // Verificar si pertenece a un estado combinado
+                        // Verificar si el estado de destino pertenece a un estado combinado
                         for (String combined : combinedStates) {
                             if (combined.contains(destination)) {
                                 destination = combined;
                                 break;
                             }
                         }
-                        transitionsList.set(i, destination); // Asegurar que cada índice del alfabeto se llene
-                                                             // correctamente
+
+                        // Agregar la transición a la nueva tabla de transiciones
+                        transitionsList.set(i, destination);
                     }
                 }
             }
+
+            // Agregar el nuevo estado y sus transiciones a la nueva tabla
             newTransitionsTable.put(newState, transitionsList);
         }
 
