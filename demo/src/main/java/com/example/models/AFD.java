@@ -84,7 +84,6 @@ public class AFD {
 
     /*
      * q --> state
-     * w --> string
      * F --> Acceptance state
      */
     public Boolean accepted(String q, List<String> F) {
@@ -94,7 +93,6 @@ public class AFD {
     /*
      * q --> state
      * w --> string
-     * d --> list of transitions
      * 
      * @return secuence of states
      */
@@ -125,6 +123,15 @@ public class AFD {
         return transitions;
     }
 
+    /**
+     * Used for minimization function
+     * Based on code from:
+     * https://github.com/Fabiola-cc/Automatas-Finitos/tree/main.
+     * 
+     * @param Q
+     * @param F
+     * @return
+     */
     private Set<List<String>> differenceList(Set<String[]> Q, Set<String[]> F) {
 
         Set<List<String>> q = new HashSet<>();
@@ -159,6 +166,13 @@ public class AFD {
         return normalizedQ;
     }
 
+    /**
+     * Uses Glushkov algorithm to reduce AFD
+     * Based on code from:
+     * https://github.com/Fabiola-cc/Automatas-Finitos/tree/main.
+     * 
+     * @return
+     */
     public AFD minimize() {
         // Convert transitions into HashMap<String, HashMap<String, String>>
         HashMap<String, HashMap<String, String>> transitionMap = new HashMap<>();

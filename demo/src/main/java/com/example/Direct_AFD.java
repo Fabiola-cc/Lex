@@ -26,6 +26,13 @@ public class Direct_AFD {
     private String initial_state;
     private List<String> acceptance_states;
 
+    /**
+     * Clase que representa la construcción directa de un AFD a partir de un árbol
+     * de análisis sintáctico
+     * 
+     * El constructor inicializa las estructuras de datos utilizadas en la
+     * construcción del AFD
+     */
     public Direct_AFD() {
         tree_info = new ArrayList<node>();
 
@@ -40,25 +47,34 @@ public class Direct_AFD {
         acceptance_states = new ArrayList<>();
     }
 
+    /**
+     * Método principal para generar el AFD directo a partir del árbol de sintaxis
+     * 
+     * @param tree
+     * @return
+     */
     public AFD generate_directAfd(List<node> tree) {
-        read_tree(tree);
-        find_symbols();
+        read_tree(tree); // Carga la información del árbol en la lista tree_info
+        find_symbols(); // Extrae los símbolos del alfabeto a partir del árbol
 
-        check_calculated_functions();
+        check_calculated_functions(); // Calcula las funciones de nullable, firstpos, lastpos y followpos
 
         // Según la definición del árbol la raíz siempre es la última en añadirse al
         // listado de nodos
         int root = tree_info.size() - 1;
 
-        get_AcceptedNodes(root);
-        create_transitions(root);
+        get_AcceptedNodes(root); // Obtiene los nodos de aceptación desde el árbol
+        create_transitions(root); // Genera las transiciones del AFD
+
         System.out.println("Tabla de transiciones");
         System.out.println("\t" + Symbols);
         for (List<String> s : transitions_table.keySet()) {
             System.out.println(s + "\t" + transitions_table.get(s));
         }
 
-        rename_transitions();
+        rename_transitions(); // Renombra los estados y transiciones para hacerlas más comprensibles
+
+        // Impresión de los nombres de los estados renombrados
         List<String> states = new ArrayList<>();
         System.out.println("\n Nombres de estados");
         for (List<String> state : Renamed_states.keySet()) {
@@ -66,17 +82,33 @@ public class Direct_AFD {
             states.add(Renamed_states.get(state));
         }
 
+        // Retorna el AFD construido
         return new AFD(Renamed_transitions, states, Symbols, initial_state, acceptance_states);
     }
 
+    /**
+     * Método para obtener la información del árbol de análisis sintáctico desde
+     * otra clase
+     * 
+     * @return
+     */
     public static ArrayList<node> getTree_info() {
         return tree_info;
     }
 
+    /**
+     * Lee el árbol y lo almacena en tree_info
+     * 
+     * @param tree
+     */
     private void read_tree(List<node> tree) {
         tree_info = (ArrayList<node>) tree;
     }
 
+    /**
+     * Calcula las funciones nullable, firstpos, lastpos y followpos para cada nodo
+     * del árbol
+     */
     private void check_calculated_functions() {
         for (node object : tree_info) {
             object.setNullable(Calculated_functions.isNullable(object));
@@ -88,7 +120,7 @@ public class Direct_AFD {
             object.setLastpos(Calculated_functions.getLastPos(object));
         }
         for (node object : tree_info) {
-            if (!object.isAlphanumeric()) {
+            if (!object.isAlphanumeric()) { // solo aplica a ciertos nodos operadores
                 Calculated_functions.getFollowPos(object);
             }
         }
@@ -96,9 +128,10 @@ public class Direct_AFD {
     }
 
     /**
-     * @param root
+     * Guarda todos los nodos que pueden ser nodos de aceptación en la expresión
+     * regular
      * 
-     *             Saves all nodes that can be last in regex
+     * @param root Índice de la raíz del árbol
      */
     private void get_AcceptedNodes(int root) {
         node rootNode = tree_info.get(root);
@@ -165,10 +198,11 @@ public class Direct_AFD {
     }
 
     /**
-     * @param transitions
+     * Crea las nuevas transiciones basado en las creadas con el
+     * estado inicial
      * 
-     *                    Crea las nuevas transiciones basado en las creadas con el
-     *                    estado inicial
+     * @param transitions transitions Lista de transiciones generadas para un estado
+     * 
      */
     private void state_transitions(List<List<String>> transitions) {
         for (List<String> state : transitions) {
@@ -225,6 +259,9 @@ public class Direct_AFD {
         }
     }
 
+    /**
+     * Obtiene los símbolos de la expresión regular desde el árbol de análisis
+     */
     private void find_symbols() {
         for (node object : tree_info) {
             if (tree_info.indexOf(object) == tree_info.size() - 2) {
@@ -237,7 +274,14 @@ public class Direct_AFD {
         }
     }
 
+    /**
+     * Obtiene el índice de un nodo en la lista según su nombre
+     * 
+     * @param elementName nombre del nodo
+     * @return índice del nodo en el árbol
+     */
     public static int getTreeIndex(String elementName) {
+        // Recorre el árbol hasta encontrar el nodo que coincide
         for (node node : getTree_info()) {
             if (node.getName().equals(elementName)) {
                 return getTree_info().indexOf(node);
@@ -247,60 +291,4 @@ public class Direct_AFD {
         return -1;
     }
 
-    public static void main(String[] args) {
-
-        // Ejemplo de uso
-        Calculate_tree calculator = new Calculate_tree();
-        List<RegexToken> postfixExample = new ArrayList<>();
-
-        // Ejemplo: a b | * a ‧ b ‧ (representa (a|b)* ‧ a ‧ b)
-        postfixExample.add(new RegexToken("a", false));
-        postfixExample.add(new RegexToken("b", false));
-        postfixExample.add(new RegexToken("|", true));
-        postfixExample.add(new RegexToken("*", true));
-        postfixExample.add(new RegexToken("a", false));
-        postfixExample.add(new RegexToken("‧", true));
-        postfixExample.add(new RegexToken("b", false));
-        postfixExample.add(new RegexToken("‧", true));
-        postfixExample.add(new RegexToken("b", false));
-        postfixExample.add(new RegexToken("‧", true));
-
-        postfixExample.forEach(token -> System.out.print(token.getValue() + " "));
-        System.out.println('\n');
-
-        List<node> result = calculator.convertPostfixToTree(postfixExample);
-
-        Direct_AFD generator = new Direct_AFD();
-        AFD afd = generator.generate_directAfd(result);
-
-        System.out.println("AFN generado con el método directo");
-        afd.printAFD();
-
-        Draw_AFD drawerAfd = new Draw_AFD(afd);
-        drawerAfd.displayAutomaton();
-
-        String inputString = "baabb#";
-
-        ArrayList<ArrayList<String>> derivationProcess = afd.derivation(afd.getInitial_state(), inputString);
-        Boolean resultString = afd.accepted(derivationProcess.get(derivationProcess.size() - 1).get(0),
-                afd.getAcceptance_states());
-        if (resultString) {
-            System.out.println("La cadena es aceptada");
-        } else {
-            System.out.println("La cadena no es aceptada");
-        }
-
-        System.out.println("\nPRINT MINIMIZED");
-        AFD miniAfd = afd.minimize();
-        miniAfd.printAFD();
-
-        ArrayList<ArrayList<String>> derivationProcess2 = miniAfd.derivation(miniAfd.getInitial_state(), inputString);
-        Boolean resultString2 = miniAfd.accepted(derivationProcess2.get(derivationProcess2.size() - 1).get(0),
-                miniAfd.getAcceptance_states());
-        if (resultString2) {
-            System.out.println("La cadena es aceptada");
-        } else {
-            System.out.println("La cadena no es aceptada");
-        }
-    }
 }
