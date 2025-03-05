@@ -93,7 +93,8 @@ public class Generate_AFD {
         AFD afd = generator.generate_directAfd(result);
 
         // Minimización
-        AFD miniAfd = afd.minimize();
+        AFDMinimizador dfa = new AFDMinimizador(afd);
+        AFD miniAfd = dfa.minimize();
         assertNotNull("El AFD minimizado no debería ser nulo", miniAfd);
     }
 }

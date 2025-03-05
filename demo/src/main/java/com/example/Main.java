@@ -76,7 +76,8 @@ public class Main {
 
         // Step 5: Minimize the AFD (optional)
         System.out.println("\nStep 4: Try to Minimize AFD");
-        AFD miniAfd = model.minimize();
+        AFDMinimizador dfa = new AFDMinimizador(model);
+        AFD miniAfd = dfa.minimize();
         System.out.println("AFD Minimization results:");
         miniAfd.printAFD();
 
