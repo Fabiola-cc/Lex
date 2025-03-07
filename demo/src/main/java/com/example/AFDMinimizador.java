@@ -19,89 +19,99 @@ public class AFDMinimizador {
     }
 
     public AFD minimize() {
-        List<Set<String>> partition = new ArrayList<>();
-        Set<String> acceptingStates = new HashSet<>(acceptance_states);
-        Set<String> nonAcceptingStates = new HashSet<>(states);
-        nonAcceptingStates.removeAll(acceptingStates);
+        Set<Set<String>> P = new HashSet<>();
+        Queue<Set<String>> L = new LinkedList<>(); // Usamos una cola en lugar de un Set
 
-        if (!acceptingStates.isEmpty())
-            partition.add(acceptingStates);
-        if (!nonAcceptingStates.isEmpty())
-            partition.add(nonAcceptingStates);
+        Set<String> F = new HashSet<>(acceptance_states);
+        Set<String> QMinusF = new HashSet<>(states);
+        QMinusF.removeAll(F);
 
-        Queue<Set<String>> workList = new LinkedList<>(partition);
-        while (!workList.isEmpty()) {
-            Set<String> group = workList.poll();
-            for (Character symbol : alphabet) {
-                Map<Set<String>, Set<String>> splitMap = new HashMap<>();
-                for (String state : group) {
-                    String nextState = getTransition(state, symbol);
-                    for (Set<String> part : partition) {
-                        if (part.contains(nextState)) {
-                            splitMap.computeIfAbsent(part, k -> new HashSet<>()).add(state);
-                            break;
+        P.add(F);
+        P.add(QMinusF);
+        L.add(F.size() < QMinusF.size() ? F : QMinusF);
+
+        while (!L.isEmpty()) {
+            Set<String> S = L.poll(); // Extraemos sin modificar un Set
+            for (char a : alphabet) {
+                int symbolIndex = alphabet.indexOf(a);
+                Set<Set<String>> newPartitions = new HashSet<>();
+
+                // Creamos una copia de P antes de modificarlo
+                List<Set<String>> partitionsCopy = new ArrayList<>(P);
+
+                for (Set<String> B : partitionsCopy) {
+                    Set<String> B1 = new HashSet<>();
+                    Set<String> B2 = new HashSet<>();
+
+                    for (String state : B) {
+                        String target = transitions_table.get(state).get(symbolIndex);
+                        if (S.contains(target)) {
+                            B1.add(state);
+                        } else {
+                            B2.add(state);
                         }
                     }
+
+                    if (!B1.isEmpty() && !B2.isEmpty()) {
+                        P.remove(B);
+                        P.add(B1);
+                        P.add(B2);
+
+                        if (L.contains(B)) {
+                            L.remove(B);
+                            L.add(B1);
+                            L.add(B2);
+                        } else {
+                            L.add(B1.size() < B2.size() ? B1 : B2);
+                        }
+                    } else {
+                        newPartitions.add(B);
+                    }
                 }
-                if (splitMap.size() > 1) {
-                    partition.remove(group);
-                    partition.addAll(splitMap.values());
-                    workList.addAll(splitMap.values());
-                    break;
-                }
+                P.addAll(newPartitions);
             }
         }
-
-        return createMinimizedDFA(partition);
+        return buildMinimizedDFA(P);
     }
 
-    private String getTransition(String state, Character symbol) {
-        List<String> transitions = transitions_table.get(state);
-        if (transitions == null)
-            return null;
-        int index = alphabet.indexOf(symbol);
-        return (index >= 0 && index < transitions.size()) ? transitions.get(index) : null;
-    }
-
-    private AFD createMinimizedDFA(List<Set<String>> finalPartition) {
-        Map<String, String> stateMapping = new HashMap<>();
+    private AFD buildMinimizedDFA(Set<Set<String>> partitions) {
+        HashMap<String, List<String>> newTransitions = new HashMap<>();
         List<String> newStates = new ArrayList<>();
-
-        for (Set<String> group : finalPartition) {
-            String newStateName = "s" + newStates.size();
-            newStates.add(newStateName);
-            for (String oldState : group)
-                stateMapping.put(oldState, newStateName);
-        }
-
-        HashMap<String, List<String>> newTransitionsTable = new HashMap<>();
-        for (String newState : newStates) {
-            List<String> newTransitions = new ArrayList<>();
-            String representative = stateMapping.entrySet().stream()
-                    .filter(entry -> entry.getValue().equals(newState))
-                    .map(Map.Entry::getKey)
-                    .findFirst()
-                    .orElse(null);
-
-            for (Character symbol : alphabet) {
-                String oldNextState = getTransition(representative, symbol);
-                newTransitions.add((oldNextState != null) ? stateMapping.get(oldNextState) : null);
-            }
-            newTransitionsTable.put(newState, newTransitions);
-        }
-
-        String newInitialState = stateMapping.get(initial_state);
+        String newInitialState = null;
         List<String> newAcceptanceStates = new ArrayList<>();
-        for (String oldAcceptState : acceptance_states) {
-            String newState = stateMapping.get(oldAcceptState);
-            if (!newAcceptanceStates.contains(newState))
-                newAcceptanceStates.add(newState);
+        Map<String, String> stateMapping = new HashMap<>();
+
+        // Crear nombres únicos para los nuevos estados
+        int counter = 0;
+        for (Set<String> partition : partitions) {
+            String newStateName = "q" + counter++;
+            newStates.add(newStateName);
+            for (String oldState : partition) {
+                stateMapping.put(oldState, newStateName);
+            }
+            if (partition.contains(initial_state)) {
+                newInitialState = newStateName;
+            }
+            if (!Collections.disjoint(partition, acceptance_states)) {
+                newAcceptanceStates.add(newStateName);
+            }
         }
 
-        System.out.println("\n Mapeo de estados, AFD minimizado:");
-        System.out.println(stateMapping);
+        // Generar las nuevas transiciones
+        for (Set<String> partition : partitions) {
+            String representative = partition.iterator().next(); // Tomamos un estado de referencia
+            String newStateName = stateMapping.get(representative);
+            List<String> newStateTransitions = new ArrayList<>();
 
-        return new AFD(newTransitionsTable, newStates, alphabet, newInitialState, newAcceptanceStates);
+            for (int i = 0; i < alphabet.size(); i++) {
+                String target = transitions_table.get(representative).get(i);
+                newStateTransitions.add(stateMapping.get(target));
+            }
+
+            newTransitions.put(newStateName, newStateTransitions);
+        }
+
+        return new AFD(newTransitions, newStates, alphabet, newInitialState, newAcceptanceStates);
     }
 
     // Additional utility methods for displaying and testing the minimized DFA

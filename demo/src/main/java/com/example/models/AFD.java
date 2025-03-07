@@ -2,11 +2,8 @@ package com.example.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class AFD {
     private HashMap<String, List<String>> transitions_table;
@@ -77,7 +74,14 @@ public class AFD {
         for (int i = 0; i < alphabet.size(); i++) {
             if (symbol.equals(String.valueOf(alphabet.get(i)))) {
                 transited_state = transitions.get(i);
+                break;
             }
+        }
+        if (symbol != "\0" &&
+                transited_state == null &&
+                alphabet.contains("\0".charAt(0))) {
+            int epsilonPosition = alphabet.indexOf("\0".charAt(0));
+            transited_state = "\0" + transitions.get(epsilonPosition);
         }
         return transited_state;
     }
@@ -101,21 +105,47 @@ public class AFD {
         ArrayList<ArrayList<String>> transitions = new ArrayList<>();
 
         for (int i = 0; i < w.length(); i++) {
-            ArrayList<String> actualT = new ArrayList<>();
+            ArrayList<String> actualT = new ArrayList<>(); // Guarda la transición actual
             actualT.add(state);
             actualT.add(String.valueOf(w.charAt(i)));
 
             if (String.valueOf(w.charAt(i)).equals("#") && i == w.length() - 1) {
+                // Antes del centinela verificar si hay una transición epsilon a considerar
+                if (alphabet.contains("\0".charAt(0))) {
+                    state = transition(state, "\0");
+                    if (state != null) {
+                        actualT.remove(1);
+                        actualT.add(String.valueOf("\0".charAt(0)));
+                        actualT.add(state);
+                    }
+                }
                 // Detenerse al llegar al centinela
+                actualT.add(actualT.get(0)); // Permanece en el último estado añadido
                 transitions.add(actualT);
                 break;
             }
 
             state = transition(state, w.charAt(i) + "");
+
+            // Cuando se tomó en cuenta una transición con epsilon
+            if (state.startsWith("\0")) {
+                // Añadir la transición epsilon
+                actualT.remove(1);
+                actualT.add(String.valueOf("\0".charAt(0)));
+                actualT.add(state);
+                transitions.add(actualT);
+
+                // Repetir proceso con el símbolo actual
+                state = state.replace("\0", "");
+                actualT.clear();
+                actualT.add(state);
+                actualT.add(String.valueOf(w.charAt(i)));
+                state = transition(state, w.charAt(i) + "");
+            }
+
             actualT.add(state);
 
             transitions.add(actualT);
-
         }
 
         return transitions;

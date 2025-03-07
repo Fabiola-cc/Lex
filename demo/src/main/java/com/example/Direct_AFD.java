@@ -132,9 +132,7 @@ public class Direct_AFD {
      * @param root Índice de la raíz del árbol
      */
     private void get_AcceptedNodes(int root) {
-        node rootNode = tree_info.get(root - 2);
-        acceptedNodes = rootNode.getLastpos();
-        acceptedNodes.add(tree_info.get(root - 1).getName());
+        acceptedNodes.add(tree_info.get(root - 1).getName()); // Nodo centinela
     }
 
     /**

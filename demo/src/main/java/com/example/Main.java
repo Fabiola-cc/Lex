@@ -72,14 +72,15 @@ public class Main {
         // Generate the AFD
         AFD model = generator.generate_directAfd(treeNodes);
         System.out.println("AFD results:");
-        model.printAFD();
+        model.printAFD(); // (\.|\*)+A0
 
         // Step 5: Minimize the AFD (optional)
         System.out.println("\nStep 4: Try to Minimize AFD");
-        AFDMinimizador dfa = new AFDMinimizador(model);
-        AFD miniAfd = dfa.minimize();
+        AFDMinimizador minimizer = new AFDMinimizador(model);
+        AFD miniAFD = minimizer.minimize();
+        System.out.println("\nMinimized DFA:");
         System.out.println("AFD Minimization results:");
-        miniAfd.printAFD();
+        miniAFD.printAFD();
 
         // Step 6: Checks if a string is valid in AFD
         System.out.println("\nStep 5: Check string");
@@ -87,7 +88,7 @@ public class Main {
         String inputString = scanner.nextLine() + "#";
 
         ArrayList<ArrayList<String>> derivationProcessO = model.derivation(model.getInitial_state(), inputString);
-        Boolean resultO = model.accepted(derivationProcessO.get(derivationProcessO.size() - 1).get(0),
+        Boolean resultO = model.accepted(derivationProcessO.get(derivationProcessO.size() - 1).get(2),
                 model.getAcceptance_states());
         if (resultO) {
             System.out.println("\nLa cadena es aceptada");
@@ -101,7 +102,7 @@ public class Main {
         System.out.println("Puedes ver tu AFD como 'AFDimage.png'");
 
         System.out.println("\n Generando imagen de AFD minimizado...");
-        GraphVizAFD drawerAfdmini = new GraphVizAFD(miniAfd, "MiniAFDimage.png");
+        GraphVizAFD drawerAfdmini = new GraphVizAFD(miniAFD, "MiniAFDimage.png");
         drawerAfdmini.draw();
         System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
 
