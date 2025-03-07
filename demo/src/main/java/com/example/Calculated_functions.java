@@ -12,17 +12,17 @@ public class Calculated_functions {
             return Collections.emptyList();
         }
 
-        Character nodeValue = element.getValue();
+        String nodeValue = element.getValue();
         List<String> result = new ArrayList<>();
         if (!element.isAlphanumeric()) {
             switch (nodeValue) {
-                case '|':
+                case "|":
                     for (int hijo : element.getNodes()) {
                         result.addAll(Direct_AFD.getTree_info().get(hijo).getFirstpos());
                     }
                     return result;
-                case '‧':
-                    // Si el 'hijo' a la *izquierda* es nulo
+                case "‧":
+                    // Si el "hijo" a la *izquierda* es nulo
                     node condition = Direct_AFD.getTree_info().get(element.getNodes().get(0));
                     if (condition.isNullable()) {
                         for (int hijo : element.getNodes()) {
@@ -33,7 +33,7 @@ public class Calculated_functions {
                         result.addAll(Direct_AFD.getTree_info().get(hijo).getFirstpos());
                     }
                     return result;
-                case '*':
+                case "*":
                     int hijo = element.getNodes().get(0);
                     result.addAll(Direct_AFD.getTree_info().get(hijo).getFirstpos());
                     return result;
@@ -51,17 +51,17 @@ public class Calculated_functions {
             return Collections.emptyList();
         }
 
-        Character nodeValue = element.getValue();
+        String nodeValue = element.getValue();
         List<String> result = new ArrayList<>();
 
         if (!element.isAlphanumeric()) {
             switch (nodeValue) {
-                case '|':
+                case "|":
                     for (int hijo : element.getNodes()) {
                         result.addAll(Direct_AFD.getTree_info().get(hijo).getLastpos());
                     }
                     return result;
-                case '‧':
+                case "‧":
                     node condition = Direct_AFD.getTree_info().get(element.getNodes().get(1));
                     if (condition.isNullable()) {
                         for (int hijo : element.getNodes()) {
@@ -72,7 +72,7 @@ public class Calculated_functions {
                         result.addAll(Direct_AFD.getTree_info().get(hijo).getLastpos());
                     }
                     return result;
-                case '*':
+                case "*":
                     int hijo = element.getNodes().get(0);
                     result.addAll(Direct_AFD.getTree_info().get(hijo).getLastpos());
                     return result;
@@ -88,9 +88,9 @@ public class Calculated_functions {
             return;
         }
 
-        Character nodeValue = element.getValue();
+        String nodeValue = element.getValue();
         switch (nodeValue) {
-            case '‧':
+            case "‧":
                 int hijo1 = element.getNodes().get(0);
                 int hijo2 = element.getNodes().get(1);
                 List<String> sp = Direct_AFD.getTree_info().get(hijo2).getFirstpos();
@@ -102,7 +102,7 @@ public class Calculated_functions {
                     }
                 }
                 break;
-            case '*':
+            case "*":
                 int hijo = element.getNodes().get(0);
                 List<String> np = Direct_AFD.getTree_info().get(hijo).getFirstpos();
 
@@ -119,22 +119,22 @@ public class Calculated_functions {
     }
 
     public static Boolean isNullable(node element) {
-        Character nodeValue = element.getValue();
+        String nodeValue = element.getValue();
         boolean result = false;
         if (!element.isAlphanumeric()) {
 
             switch (nodeValue) {
-                case '|':
+                case "|":
                     for (int hijo : element.getNodes()) {
                         result = result || isNullable(Direct_AFD.getTree_info().get(hijo));
                     }
                     return result;
-                case '‧':
+                case "‧":
                     for (int hijo : element.getNodes()) {
                         result = result && isNullable(Direct_AFD.getTree_info().get(hijo));
                     }
                     return result;
-                case '*':
+                case "*":
                     return true;
             }
         } else if (element.isAlphanumeric()) {

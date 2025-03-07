@@ -56,8 +56,8 @@ public class Calculate_tree {
     }
 
     // ADICIÓN DE NODO CENTINELA
-    node newRoot = createNode('‧', false);
-    node nodofinal = createNode('#', true);
+    node newRoot = createNode("‧", false);
+    node nodofinal = createNode("#", true);
     nodofinal.setName(String.valueOf(alfanumericoCounter++));
     newRoot.setName("o" + operatorCounter++);
 
@@ -75,7 +75,7 @@ public class Calculate_tree {
    * 2. Pushea el nuevo nodo al stack
    */
   private void handleAlfanumerico(RegexToken token) {
-    node leafNode = createNode(token.getValue().charAt(0), true);
+    node leafNode = createNode(token.getValue(), true);
     leafNode.setName(String.valueOf(alfanumericoCounter++));
     operandStack.push(leafNode);
     treeNodes.add(leafNode);
@@ -90,7 +90,7 @@ public class Calculate_tree {
    * puesto como el nodo de la derecha
    */
   private void handleOperator(RegexToken token) {
-    node operatorNode = createNode(token.getValue().charAt(0), false);
+    node operatorNode = createNode(token.getValue(), false);
     operatorNode.setName("o" + operatorCounter++);
 
     // Manejo especial para el operador estrella de Kleene
@@ -118,7 +118,7 @@ public class Calculate_tree {
   }
 
   // Crea un nuevo nodo con el valor y tipo especificados.
-  private node createNode(char value, boolean isAlphanumeric) {
+  private node createNode(String value, boolean isAlphanumeric) {
     return new node(value, isAlphanumeric);
   }
 

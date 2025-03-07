@@ -6,14 +6,14 @@ import java.util.List;
 public class node {
     private boolean isNullable;
     private boolean isAlphanumeric;
-    private Character value;
+    private String value;
     private String name;
     private ArrayList<Integer> nodes; // Contiene los índices de los 'hijos' (para operadores)
     private List<String> firstpos;
     private List<String> lastpos;
     private List<String> followpos;
 
-    public node(Character value, boolean isAlphanumeric) {
+    public node(String value, boolean isAlphanumeric) {
         this.value = value;
         this.isAlphanumeric = isAlphanumeric;
         this.nodes = new ArrayList<Integer>();
@@ -38,11 +38,11 @@ public class node {
         this.isAlphanumeric = isAlphanumeric;
     }
 
-    public Character getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(Character value) {
+    public void setValue(String value) {
         this.value = value;
     }
 

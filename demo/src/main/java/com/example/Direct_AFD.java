@@ -14,7 +14,7 @@ public class Direct_AFD {
 
     private HashMap<List<String>, List<List<String>>> transitions_table;
     private List<List<String>> States;
-    private List<Character> Symbols;
+    private List<String> Symbols;
     private List<List<String>> acceptanceStates;
     private List<String> acceptedNodes;
     private List<String> initialState;
@@ -159,18 +159,18 @@ public class Direct_AFD {
      */
     private List<List<String>> save_transitions(List<String> state) {
         // Cada estado es un list string, se transiciona a varios estados
-        Map<Character, List<List<String>>> grupos = new LinkedHashMap<>();
+        Map<String, List<List<String>>> grupos = new LinkedHashMap<>();
         // Busca la transición de cada nodo según su valor
         for (String actualNode : state) {
             node n = tree_info.get(getTreeIndex(actualNode));
 
             // Crear tansiciones 'vacías' para cada símbolo
-            for (Character simbolo : Symbols) {
+            for (String simbolo : Symbols) {
                 // Verifica si hay transiciones para este símbolo, si no, crea una vacía
                 grupos.computeIfAbsent(simbolo, k -> new ArrayList<>());
             }
 
-            if (n.getValue() == '#' && getTreeIndex(actualNode) == tree_info.size() - 2) {
+            if (n.getValue() == "#" && getTreeIndex(actualNode) == tree_info.size() - 2) {
                 break;
             }
 
@@ -180,7 +180,7 @@ public class Direct_AFD {
         }
         // Lista de estados a los que se transiciona
         List<List<String>> result = new ArrayList<>();
-        for (Character c : grupos.keySet()) {
+        for (String c : grupos.keySet()) {
             List<String> newState = new ArrayList<>();
             for (List<String> list : grupos.get(c)) {
                 for (String nodeString : list) {

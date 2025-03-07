@@ -8,11 +8,11 @@ import java.util.List;
 public class AFD {
     private HashMap<String, List<String>> transitions_table;
     private List<String> states;
-    private List<Character> alphabet;
+    private List<String> alphabet;
     private String initial_state;
     private List<String> acceptance_states;
 
-    public AFD(HashMap<String, List<String>> transitions_table, List<String> states, List<Character> alphabet,
+    public AFD(HashMap<String, List<String>> transitions_table, List<String> states, List<String> alphabet,
             String initial_state, List<String> acceptance_states) {
         this.transitions_table = transitions_table;
         this.states = states;
@@ -37,11 +37,11 @@ public class AFD {
         this.states = states;
     }
 
-    public List<Character> getAlphabet() {
+    public List<String> getAlphabet() {
         return alphabet;
     }
 
-    public void setAlphabet(List<Character> alphabet) {
+    public void setAlphabet(List<String> alphabet) {
         this.alphabet = alphabet;
     }
 
@@ -79,8 +79,8 @@ public class AFD {
         }
         if (symbol != "\0" &&
                 transited_state == null &&
-                alphabet.contains("\0".charAt(0))) {
-            int epsilonPosition = alphabet.indexOf("\0".charAt(0));
+                alphabet.contains("\0")) {
+            int epsilonPosition = alphabet.indexOf("\0");
             transited_state = "\0" + transitions.get(epsilonPosition);
         }
         return transited_state;
@@ -111,11 +111,11 @@ public class AFD {
 
             if (String.valueOf(w.charAt(i)).equals("#") && i == w.length() - 1) {
                 // Antes del centinela verificar si hay una transición epsilon a considerar
-                if (alphabet.contains("\0".charAt(0))) {
+                if (alphabet.contains("\0")) {
                     state = transition(state, "\0");
                     if (state != null) {
                         actualT.remove(1);
-                        actualT.add(String.valueOf("\0".charAt(0)));
+                        actualT.add(String.valueOf("\0"));
                         actualT.add(state);
                     }
                 }
@@ -131,7 +131,7 @@ public class AFD {
             if (state.startsWith("\0")) {
                 // Añadir la transición epsilon
                 actualT.remove(1);
-                actualT.add(String.valueOf("\0".charAt(0)));
+                actualT.add(String.valueOf("\0"));
                 actualT.add(state);
                 transitions.add(actualT);
 
@@ -173,7 +173,7 @@ public class AFD {
         List<String> states = Arrays.asList("q0", "q1", "q2", "q3");
 
         // Definir alfabeto
-        List<Character> alphabet = Arrays.asList('0', '1');
+        List<String> alphabet = Arrays.asList("0", "1");
 
         // Definir estado inicial
         String initial_state = "q0";

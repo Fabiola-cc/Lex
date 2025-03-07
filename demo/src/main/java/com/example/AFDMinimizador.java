@@ -6,7 +6,7 @@ import com.example.models.AFD;
 public class AFDMinimizador {
     private HashMap<String, List<String>> transitions_table;
     private List<String> states;
-    private List<Character> alphabet;
+    private List<String> alphabet;
     private String initial_state;
     private List<String> acceptance_states;
 
@@ -32,7 +32,7 @@ public class AFDMinimizador {
 
         while (!L.isEmpty()) {
             Set<String> S = L.poll(); // Extraemos sin modificar un Set
-            for (char a : alphabet) {
+            for (String a : alphabet) {
                 int symbolIndex = alphabet.indexOf(a);
                 Set<Set<String>> newPartitions = new HashSet<>();
 
@@ -143,7 +143,7 @@ public class AFDMinimizador {
         transitions.put("E", Arrays.asList("B", "C"));
 
         List<String> states = Arrays.asList("A", "B", "C", "D", "E");
-        List<Character> alphabet = Arrays.asList('a', 'b');
+        List<String> alphabet = Arrays.asList("a", "b");
         String initialState = "A";
         List<String> acceptanceStates = Arrays.asList("E");
 

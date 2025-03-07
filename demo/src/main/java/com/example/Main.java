@@ -72,7 +72,7 @@ public class Main {
         // Generate the AFD
         AFD model = generator.generate_directAfd(treeNodes);
         System.out.println("AFD results:");
-        model.printAFD(); // (\.|\*)+A0
+        model.printAFD();
 
         // Step 5: Minimize the AFD (optional)
         System.out.println("\nStep 4: Try to Minimize AFD");
@@ -87,9 +87,9 @@ public class Main {
         System.out.print("Enter a string to check with the AFD: ");
         String inputString = scanner.nextLine() + "#";
 
-        ArrayList<ArrayList<String>> derivationProcessO = model.derivation(model.getInitial_state(), inputString);
-        Boolean resultO = model.accepted(derivationProcessO.get(derivationProcessO.size() - 1).get(2),
-                model.getAcceptance_states());
+        ArrayList<ArrayList<String>> derivationProcessO = miniAFD.derivation(miniAFD.getInitial_state(), inputString);
+        Boolean resultO = miniAFD.accepted(derivationProcessO.get(derivationProcessO.size() - 1).get(2),
+                miniAFD.getAcceptance_states());
         if (resultO) {
             System.out.println("\nLa cadena es aceptada");
         } else {
