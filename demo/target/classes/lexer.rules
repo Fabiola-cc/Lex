@@ -1,0 +1,16 @@
+let digit = [0-2]
+let number = digit+
+let sum = +
+let prueba = [1-2]
+let prueba2 = [3-4]
+let difference = prueba#prueba2
+let letra = [A-Za-z]
+let palabra = letra+
+let mult = *
+let div = /
+
+rule tokens:
+number = {return NUMBER}
+sum = {return SUM}
+word = {return WORD}
+div = {return DIV}

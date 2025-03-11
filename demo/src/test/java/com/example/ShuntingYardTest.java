@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.Modules.Regex.ShuntingYard;
 import com.example.models.RegexToken;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
