@@ -1,4 +1,4 @@
-package com.example;
+package com.example.Modules.AFD;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example;
+package com.example.Modules.AFD;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

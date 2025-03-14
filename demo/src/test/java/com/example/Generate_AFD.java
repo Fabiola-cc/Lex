@@ -8,6 +8,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import com.example.Modules.AFD.AFDMinimizador;
+import com.example.Modules.AFD.Calculate_tree;
+import com.example.Modules.AFD.Direct_AFD;
 import com.example.models.AFD;
 import com.example.models.RegexToken;
 import com.example.models.node;

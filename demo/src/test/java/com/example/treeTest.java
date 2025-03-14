@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertFalse;
 
+import com.example.Modules.AFD.Calculate_tree;
 import com.example.models.RegexToken;
 import com.example.models.node;
 

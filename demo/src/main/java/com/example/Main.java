@@ -7,6 +7,9 @@ import java.util.Scanner;
 
 import com.example.Drawings.Draw_Tree;
 import com.example.Drawings.GraphVizAFD;
+import com.example.Modules.AFD.AFDMinimizador;
+import com.example.Modules.AFD.Calculate_tree;
+import com.example.Modules.AFD.Direct_AFD;
 import com.example.Modules.Regex.ShuntingYard;
 import com.example.models.AFD;
 import com.example.models.RegexToken;

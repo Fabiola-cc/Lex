@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.example.Calculate_tree;
+import com.example.Modules.AFD.Calculate_tree;
 import com.example.models.RegexToken;
 import com.example.models.node;
 
@@ -34,6 +34,7 @@ public class Draw_Tree {
     /**
      * Usa como parámetro la lista de nodos del árbol sintáctico
      * Método principal que genera la visualización del árbol
+     * 
      * @param treeNodes Lista de nodos que forman el árbol sintáctico
      */
     public void visualizeTree(List<node> treeNodes) {
@@ -50,9 +51,9 @@ public class Draw_Tree {
             // De todos los nodos que se van agregando se guardan en graph para que
             // con la dependencia se haga el archivo
             Graphviz.fromGraph(graph)
-                   .render(Format.PNG)
-                   .toFile(new File(OUTPUT_FILENAME));
-            
+                    .render(Format.PNG)
+                    .toFile(new File(OUTPUT_FILENAME));
+
             System.out.println("Tu imagen del árbol se ha generado como '" + OUTPUT_FILENAME + "'");
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("Error al generar el árbol sintáctico: " + e.getMessage());
@@ -67,18 +68,18 @@ public class Draw_Tree {
     private MutableNode createNodes(node currentNode, MutableNode parentGraphNode, List<node> allNodes) {
         // Genera ID único para el nodo
         String nodeId = "node" + nodeCounter.getAndIncrement();
-        
+
         // Crea el nodo con el símbolo y decoración
         MutableNode graphNode = createSymbolNode(currentNode, nodeId);
-        
+
         // Añade el nodo al grafo
         graph.add(graphNode);
-        
+
         // Si tiene padre, conecta con él
         if (parentGraphNode != null) {
             parentGraphNode.addLink(graphNode);
         }
-        
+
         // Procesa recursivamente los hijos
         for (Integer childIndex : currentNode.getNodes()) {
             if (childIndex >= 0 && childIndex < allNodes.size()) {
@@ -89,22 +90,22 @@ public class Draw_Tree {
         return graphNode;
     }
 
-    /*DECORACIONES DE LA IMAGEN*/
+    /* DECORACIONES DE LA IMAGEN */
     private MutableNode createSymbolNode(node node, String id) {
         // Muestra solo el valor del nodo
         String label = String.valueOf(node.getValue());
-        
+
         // Configuración base del estilo del nodo
         MutableNode nodeStyle = mutNode(id)
-            .add("shape", "circle")
-            .add("fixedsize", "false")
-            .add("width", "0.9")
-            .add("height", "0.9")
-            .add("fontsize", "50")
-            .add("style", "filled,rounded")
-            .add("penwidth", "2.0")
-            .add("label", label);
-            
+                .add("shape", "circle")
+                .add("fixedsize", "false")
+                .add("width", "0.9")
+                .add("height", "0.9")
+                .add("fontsize", "50")
+                .add("style", "filled,rounded")
+                .add("penwidth", "2.0")
+                .add("label", label);
+
         // Diferente color para nodos terminales y no terminales
         if (node.isAlphanumeric()) {
             return nodeStyle.add(Color.rgb("FFB6C1").fill()); // Rosa claro para nodos hoja
@@ -121,50 +122,49 @@ public class Draw_Tree {
         // Crear un árbol de ejemplo para pruebas
         Calculate_tree calculator = new Calculate_tree();
         List<RegexToken> postfixExample = new ArrayList<>();
-        
-             
+
         // Primera parte: (a|b)*
         postfixExample.add(new RegexToken("a", false));
         postfixExample.add(new RegexToken("b", false));
         postfixExample.add(new RegexToken("|", true));
         postfixExample.add(new RegexToken("*", true));
-        
+
         // Segunda parte: (c|d)
         postfixExample.add(new RegexToken("c", false));
         postfixExample.add(new RegexToken("d", false));
         postfixExample.add(new RegexToken("|", true));
-        
+
         // Concatenar primera y segunda parte
         postfixExample.add(new RegexToken("‧", true));
-        
+
         // Tercera parte: (e|f)*
         postfixExample.add(new RegexToken("e", false));
         postfixExample.add(new RegexToken("f", false));
         postfixExample.add(new RegexToken("|", true));
         postfixExample.add(new RegexToken("*", true));
-        
+
         // Cuarta parte: (g|h)*
         postfixExample.add(new RegexToken("g", false));
         postfixExample.add(new RegexToken("h", false));
         postfixExample.add(new RegexToken("|", true));
         postfixExample.add(new RegexToken("*", true));
-        
+
         // Concatenar tercera y cuarta parte
         postfixExample.add(new RegexToken("‧", true));
-        
+
         // Quinta parte: (i|j|k)
         postfixExample.add(new RegexToken("i", false));
         postfixExample.add(new RegexToken("j", false));
         postfixExample.add(new RegexToken("|", true));
         postfixExample.add(new RegexToken("k", false));
         postfixExample.add(new RegexToken("|", true));
-        
+
         // Concatenar todas las partes
         postfixExample.add(new RegexToken("‧", true));
         postfixExample.add(new RegexToken("‧", true));
-        
+
         List<node> result = calculator.convertPostfixToTree(postfixExample);
-        
+
         // Visualizar el árbol
         Draw_Tree drawer = new Draw_Tree();
         drawer.visualizeTree(result);
