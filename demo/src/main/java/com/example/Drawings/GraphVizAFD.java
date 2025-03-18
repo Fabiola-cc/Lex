@@ -2,6 +2,7 @@ package com.example.Drawings;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +92,7 @@ public class GraphVizAFD {
                 transitions,
                 Arrays.asList("q0", "q1", "q2"),
                 Arrays.asList("a", "b"),
+                new ArrayList<>(),
                 "q0",
                 Arrays.asList("q0"));
 

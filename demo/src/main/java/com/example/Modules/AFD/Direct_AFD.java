@@ -15,6 +15,7 @@ public class Direct_AFD {
     private HashMap<List<String>, List<List<String>>> transitions_table;
     private List<List<String>> States;
     private List<String> Symbols;
+    private List<String> Tokens;
     private List<List<String>> acceptanceStates;
     private List<String> acceptedNodes;
     private List<String> initialState;
@@ -37,6 +38,7 @@ public class Direct_AFD {
         transitions_table = new HashMap<>();
         States = new ArrayList<>();
         Symbols = new ArrayList<>();
+        Tokens = new ArrayList<>();
         acceptanceStates = new ArrayList<>();
         acceptedNodes = new ArrayList<>();
 
@@ -81,7 +83,7 @@ public class Direct_AFD {
         }
 
         // Retorna el AFD construido
-        return new AFD(Renamed_transitions, states, Symbols, initial_state, acceptance_states);
+        return new AFD(Renamed_transitions, states, Symbols, Tokens, initial_state, acceptance_states);
     }
 
     /**
@@ -267,6 +269,10 @@ public class Direct_AFD {
             }
             if (object.isAlphanumeric() && !Symbols.contains(object.getValue())) {
                 Symbols.add(object.getValue());
+
+                if (object.isToken()) {
+                    Tokens.add(object.getValue());
+                }
             }
         }
     }

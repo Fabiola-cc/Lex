@@ -7,6 +7,7 @@ public class AFDMinimizador {
     private HashMap<String, List<String>> transitions_table;
     private List<String> states;
     private List<String> alphabet;
+    private List<String> tokens;
     private String initial_state;
     private List<String> acceptance_states;
 
@@ -14,6 +15,7 @@ public class AFDMinimizador {
         this.transitions_table = model.getTransitions_table();
         this.states = model.getStates();
         this.alphabet = model.getAlphabet();
+        this.tokens = model.getTokens();
         this.initial_state = model.getInitial_state();
         this.acceptance_states = model.getAcceptance_states();
     }
@@ -111,7 +113,7 @@ public class AFDMinimizador {
             newTransitions.put(newStateName, newStateTransitions);
         }
 
-        return new AFD(newTransitions, newStates, alphabet, newInitialState, newAcceptanceStates);
+        return new AFD(newTransitions, newStates, alphabet, tokens, newInitialState, newAcceptanceStates);
     }
 
     // Additional utility methods for displaying and testing the minimized DFA
@@ -147,7 +149,8 @@ public class AFDMinimizador {
         String initialState = "A";
         List<String> acceptanceStates = Arrays.asList("E");
 
-        AFDMinimizador dfa = new AFDMinimizador(new AFD(transitions, states, alphabet, initialState, acceptanceStates));
+        AFDMinimizador dfa = new AFDMinimizador(
+                new AFD(transitions, states, alphabet, new ArrayList<>(), initialState, acceptanceStates));
         System.out.println("Original DFA:");
         dfa.printDFA();
 
