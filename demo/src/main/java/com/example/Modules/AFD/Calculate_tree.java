@@ -76,6 +76,7 @@ public class Calculate_tree {
    */
   private void handleAlfanumerico(RegexToken token) {
     node leafNode = createNode(token.getValue(), true);
+    leafNode.setToken(token.getIsToken());
     leafNode.setName(String.valueOf(alfanumericoCounter++));
     operandStack.push(leafNode);
     treeNodes.add(leafNode);
@@ -91,6 +92,7 @@ public class Calculate_tree {
    */
   private void handleOperator(RegexToken token) {
     node operatorNode = createNode(token.getValue(), false);
+    operatorNode.setToken(token.getIsToken());
     operatorNode.setName("o" + operatorCounter++);
 
     // Manejo especial para el operador estrella de Kleene

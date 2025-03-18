@@ -6,6 +6,7 @@ import java.util.List;
 public class node {
     private boolean isNullable;
     private boolean isAlphanumeric;
+    private boolean isToken;
     private String value;
     private String name;
     private ArrayList<Integer> nodes; // Contiene los índices de los 'hijos' (para operadores)
@@ -36,6 +37,14 @@ public class node {
 
     public void setAlphanumeric(boolean isAlphanumeric) {
         this.isAlphanumeric = isAlphanumeric;
+    }
+
+    public boolean isToken() {
+        return isToken;
+    }
+
+    public void setToken(boolean isToken) {
+        this.isToken = isToken;
     }
 
     public String getValue() {
