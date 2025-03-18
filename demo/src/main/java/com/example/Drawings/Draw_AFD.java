@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints; // Explicitly import from java.util
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -238,6 +239,7 @@ public class Draw_AFD extends JPanel {
                 transitions,
                 Arrays.asList("q0", "q1", "q2"), // Estados
                 Arrays.asList("0", "1"), // Alfabeto
+                new ArrayList<>(), // tokens
                 "q0", // Estado inicial
                 Arrays.asList("q0") // Estados de aceptación
         );
