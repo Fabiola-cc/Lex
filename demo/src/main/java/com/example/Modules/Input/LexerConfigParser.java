@@ -8,8 +8,21 @@ public class LexerConfigParser {
     private final Map<String, String> regexDefinitions = new LinkedHashMap<>();
     private final Map<String, String> tokenDefinitions = new LinkedHashMap<>();
     private final Map<String, String> regexToTokenMap = new LinkedHashMap<>();
+    private final List<String> headers = new ArrayList<>(); // Lista para almacenar los encabezados
 
+    private boolean parsingHeaders = false;
     private boolean parsingTokens = false;
+    private boolean firstTokenRule = true;
+
+    //Funcion a Exportar a Main
+    public Map<String, Object> parseLexerConfig(String filename) throws IOException {
+        readFile(filename);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("headers", new ArrayList<>(headers));
+        result.put("regexToTokenMap", new LinkedHashMap<>(regexToTokenMap));
+        return result;
+    }
 
     public void readFile(String filename) throws IOException {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filename);
@@ -25,15 +38,30 @@ public class LexerConfigParser {
         }
 
         replaceReferences();
-        escapeSingleCharValues();
         mapRegexToTokens();
     }
 
     private void parseLine(String line) {
         if (line.isEmpty()) return; // Ignorar líneas vacías
 
-        if (line.startsWith("rule tokens:")) {
+        if (line.startsWith("rule gettoken =")) {
             parsingTokens = true; // Cambiamos al modo de lectura de tokens
+            return;
+        }
+
+        if (line.startsWith("{")){
+            parsingHeaders = true;
+            return;
+        }
+
+        if (line.startsWith("}")){
+            parsingHeaders = false;
+            return;
+        }
+
+        // Detectar y guardar encabezados
+        if (parsingHeaders) {
+            headers.add(line);
             return;
         }
 
@@ -47,8 +75,18 @@ public class LexerConfigParser {
                 regexDefinitions.put(name, value);
             }
         } else {
+            if (firstTokenRule) {
+                Pattern tokenPattern = Pattern.compile("\\s*([a-zA-Z0-9'\\[\\]'-]+)\\s*\\{\\s*return\\s+(\\w+)\\s*\\}");
+                Matcher matcher = tokenPattern.matcher(line);
+                if (matcher.matches()) {
+                    String name = matcher.group(1);
+                    String token = matcher.group(2);
+                    tokenDefinitions.put(name, token);
+                }
+                firstTokenRule = false;
+            }
             // Modo de lectura de tokens
-            Pattern tokenPattern = Pattern.compile("(\\w+)\\s*=\\s*\\{return\\s+(\\w+)\\}");
+            Pattern tokenPattern = Pattern.compile("\\|\\s*([a-zA-Z0-9'\\[\\]'-]+)\\s*\\{\\s*return\\s+(\\w+)\\s*\\}");
             Matcher matcher = tokenPattern.matcher(line);
             if (matcher.matches()) {
                 String name = matcher.group(1);
@@ -58,9 +96,11 @@ public class LexerConfigParser {
         }
     }
 
+    // Reemplazar las referencias de regex en las expresiones regulares
     private void replaceReferences() {
         for (Map.Entry<String, String> entry : regexDefinitions.entrySet()) {
             String value = entry.getValue();
+            // Sustituir las referencias a otras expresiones regulares por su valor correspondiente
             for (Map.Entry<String, String> replacement : regexDefinitions.entrySet()) {
                 value = value.replaceAll("\\b" + replacement.getKey() + "\\b", replacement.getValue());
             }
@@ -68,15 +108,7 @@ public class LexerConfigParser {
         }
     }
 
-    private void escapeSingleCharValues() {
-        for (Map.Entry<String, String> entry : regexDefinitions.entrySet()) {
-            String value = entry.getValue();
-            if (value.length() == 1) {
-                regexDefinitions.put(entry.getKey(), "\\" + value);
-            }
-        }
-    }
-
+    // Mapear las expresiones regulares a los tokens correspondientes
     private void mapRegexToTokens() {
         for (Map.Entry<String, String> tokenEntry : tokenDefinitions.entrySet()) {
             String regexKey = tokenEntry.getKey();
@@ -91,29 +123,27 @@ public class LexerConfigParser {
         }
     }
 
-    public void printDefinitions() {
-        System.out.println("Definiciones de Regex:");
-        for (Map.Entry<String, String> entry : regexDefinitions.entrySet()) {
-            System.out.println(entry.getKey() + "," + entry.getValue());
-        }
-        System.out.println("\nDefiniciones de Tokens:");
-        for (Map.Entry<String, String> entry : tokenDefinitions.entrySet()) {
-            System.out.println(entry.getKey() + "," + entry.getValue());
-        }
-        System.out.println("\nMapeo de Regex a Tokens:");
-        for (Map.Entry<String, String> entry : regexToTokenMap.entrySet()) {
-            System.out.println(entry.getKey() + "," + entry.getValue());
-        }
-    }
-
     public static void main(String[] args) {
         LexerConfigParser parser = new LexerConfigParser();
+
         try {
-            parser.readFile("lexer.rules"); // Leer el archivo
-            parser.printDefinitions(); // Imprimir las definiciones
+
+            Map<String, Object> result = parser.parseLexerConfig("lexer.yal");
+
+            List<String> headers = (List<String>) result.get("headers");
+            System.out.println("Encabezados:");
+            for (String header : headers) {
+                System.out.println(header);
+            }
+            // Obtener el mapeo de regex a tokens
+            Map<String, String> regexToTokenMap = (Map<String, String>) result.get("regexToTokenMap");
+            System.out.println("\nMapeo de Regex a Tokens:");
+            for (Map.Entry<String, String> entry : regexToTokenMap.entrySet()) {
+                System.out.println(entry.getKey() + " , " + entry.getValue());
+            }
+
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
 }
-

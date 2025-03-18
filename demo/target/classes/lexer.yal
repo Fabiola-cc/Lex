@@ -1,0 +1,12 @@
+{
+    import com.duarte.lexer.returnToken;
+}
+
+let digit = ['0'-'9']
+let ident = ['a'-'z''A'-'Z']+
+let blanks = ' '|'\t'
+
+rule gettoken =
+blanks { return lexbuf }
+| digit { return DIGIT }
+| ident { return IDENT }
