@@ -141,7 +141,7 @@ public class RegexGenerator {
      * @return Lista de tokens modificada, con concatenación implícita añadida
      *         cuando corresponde.
      */
-    private static List<RegexToken> addImplicitConcatenation(List<RegexToken> tokens) {
+    public static List<RegexToken> addImplicitConcatenation(List<RegexToken> tokens) {
         List<RegexToken> output = new ArrayList<>();
 
         for (int i = 0; i < tokens.size(); i++) {
@@ -390,14 +390,14 @@ public class RegexGenerator {
         Map<String, String> processedMap = new HashMap<>();
         processedMap.put("\\++", "PLUS");
         processedMap.put("[a-z]#[a-b]", "INDENT");
-        processedMap.put(" |'\\t", "WHITESPACE");
+        processedMap.put(" |'\\t'", "WHITESPACE");
         processedMap.put("tamari", "IDENTIFIER");
 
         List<RegexToken> result = generateCombinedRegex(processedMap);
         List<RegexToken> infix = addImplicitConcatenation(result);
 
         for (RegexToken token : infix) {
-            System.out.print(token.getValue() + " ");
+            System.out.print(token.getValue());
         }
 
     }

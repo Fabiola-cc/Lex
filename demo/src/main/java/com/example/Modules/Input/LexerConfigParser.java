@@ -26,19 +26,25 @@ public class LexerConfigParser {
 
     public void readFile(String filename) throws IOException {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filename);
-        if (inputStream == null) {
-            throw new FileNotFoundException("No se encontró el archivo: " + filename);
-        }
-
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                parseLine(line.trim()); // Procesar cada línea
+        try{
+            if (inputStream == null) {
+                throw new FileNotFoundException("No se encontró el archivo: " + filename);
             }
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    parseLine(line.trim()); // Procesar cada línea
+                }
+            }
+
+            replaceReferences();
+            mapRegexToTokens();
+        }
+        catch (FileNotFoundException e) {
+            System.err.println("Error al leer el archivo: " + e.getMessage());
         }
 
-        replaceReferences();
-        mapRegexToTokens();
     }
 
     private void parseLine(String line) {

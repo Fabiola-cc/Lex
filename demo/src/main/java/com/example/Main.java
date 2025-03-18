@@ -3,8 +3,12 @@ package com.example;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
+import com.example.Modules.Input.LexerConfigParser;
+import com.example.Modules.Regex.RegexConvertor;
+import com.example.Modules.Regex.RegexGenerator;
 import com.example.Drawings.Draw_Tree;
 import com.example.Drawings.GraphVizAFD;
 import com.example.Modules.AFD.AFDMinimizador;
@@ -15,7 +19,13 @@ import com.example.models.AFD;
 import com.example.models.RegexToken;
 import com.example.models.node;
 
+import static com.example.Modules.Regex.RegexConvertor.convertRegexMap;
+import static com.example.Modules.Regex.RegexGenerator.addImplicitConcatenation;
+import static com.example.Modules.Regex.RegexGenerator.generateCombinedRegex;
+import static com.example.Modules.Regex.ShuntingYard.shuntingYard;
+
 public class Main {
+    /*
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
@@ -38,7 +48,7 @@ public class Main {
 
         // Step 2: Convert regex to tokens and then to postfix notation
         System.out.println("\nStep 1: Converting to postfix notation...");
-        List<RegexToken> infixTokens = ShuntingYard.convertToArray(regex);
+        List<RegexToken> infixTokens = RegexGenerator.convertToArray(regex);
         List<RegexToken> postfixTokens = ShuntingYard.shuntingYard(infixTokens);
 
         // Print the postfix expression for verification
@@ -111,5 +121,69 @@ public class Main {
         System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
 
         scanner.close();
+    }
+
+     */
+    public static void main(String[] args) throws IOException {
+        LexerConfigParser parser = new LexerConfigParser();
+        Map<String, Object> result = parser.parseLexerConfig("lexer.yal");
+        List<String> headers = (List<String>) result.get("headers");
+        Map<String, String> regexToTokenMap = (Map<String, String>) result.get("regexToTokenMap");
+
+        Map<String, String> processedRegexMap = convertRegexMap(regexToTokenMap);
+        List<RegexToken> combined = generateCombinedRegex(processedRegexMap);
+        List<RegexToken> infix = addImplicitConcatenation(combined);
+
+        List<RegexToken> postfix = shuntingYard(infix);
+
+        System.out.println("Postfix expression");
+        for (RegexToken token : postfix) {
+            System.out.print(token.getValue() + " ");
+        }
+        System.out.println("\n");
+
+        // Step 3: Create syntax tree from postfix expression
+        System.out.println("Step 2: Creating syntax tree...");
+        Calculate_tree treeCalculator = new Calculate_tree();
+        List<node> treeNodes = treeCalculator.convertPostfixToTree(postfix);
+
+        // Print tree nodes for verification
+        System.out.println("Tree nodes:");
+        for (int i = 0; i < treeNodes.size(); i++) {
+            node n = treeNodes.get(i);
+            System.out.println("Node " + i + ": " +
+                    "Name=" + n.getName() + ", " +
+                    "Value=" + n.getValue() + ", " +
+                    "Children=" + n.getNodes());
+        }
+        System.out.println();
+        System.out.println("\n Generando imagen de árbol...");
+        // Create image of tree
+        Draw_Tree drawer = new Draw_Tree();
+        drawer.visualizeTree(treeNodes);
+        System.out.println("Puedes ver tu árbol como 'Syntax_Tree.png'");
+
+        // Step 4: Create Direct AFD from syntax tree
+        System.out.println("\nStep 3: Generating AFD");
+        Direct_AFD generator = new Direct_AFD();
+
+        // Generate the AFD
+        AFD model = generator.generate_directAfd(treeNodes);
+        System.out.println("AFD results:");
+        model.printAFD();
+
+        System.out.println("\n Generando imagen de AFD...");
+        GraphVizAFD drawerAfd = new GraphVizAFD(model, "AFDimage.png");
+        drawerAfd.draw();
+        System.out.println("Puedes ver tu AFD como 'AFDimage.png'");
+
+        System.out.println("\n Generando imagen de AFD minimizado...");
+        GraphVizAFD drawerAfdmini = new GraphVizAFD(model, "MiniAFDimage.png");
+        drawerAfdmini.draw();
+        System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
+
+
+
+
     }
 }
