@@ -4,11 +4,15 @@
 
 let digit = ['0'-'9']
 let number = digit+
-let blanks = ' '
-let sum = '+'
+let blanks = ' '|'\t'
 
 rule gettoken =
 blanks { return lexbuf }
-| digit { return DIGIT }
-| number { return NUM }
-| sum { return SUM }
+| '\n' { return EOL }
+| '+' { return PLUS }
+| '-' { return MINUS }
+| '*' { return TIMES }
+| '/' { return DIV }
+| '(' { return LPAREN }
+| ')' { return RPAREN }
+| number { return NUMBER }

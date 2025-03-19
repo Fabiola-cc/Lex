@@ -76,7 +76,16 @@ public class RegexGenerator {
                     tokens.add(new RegexToken("^" + next, false));
                     i++;
                 }
-            } else if (c.equals("?")) {
+            } else if (c.equals("'")){
+                String next2 = String.valueOf(regex.charAt(i + 2));
+                if (next2.equals("n")) {
+                    tokens.add(new RegexToken("\n", false));
+                }
+                else if (next2.equals("t")) {
+                    tokens.add(new RegexToken("\t", false));
+                }
+                i = i + 3;
+            }else if (c.equals("?")) {
                 RegexToken prevToken = tokens.get(tokens.size() - 1);
                 if (prevToken.getValue().equals(")")) {
                     int parenIndex = tokens.size() -1 ;

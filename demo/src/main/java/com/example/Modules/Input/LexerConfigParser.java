@@ -1,5 +1,6 @@
 package com.example.Modules.Input;
 
+import javax.sound.midi.Soundbank;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
@@ -26,7 +27,7 @@ public class LexerConfigParser {
 
     public void readFile(String filename) throws IOException {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filename);
-        try{
+        try {
             if (inputStream == null) {
                 throw new FileNotFoundException("No se encontró el archivo: " + filename);
             }
@@ -40,11 +41,9 @@ public class LexerConfigParser {
 
             replaceReferences();
             mapRegexToTokens();
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
-
     }
 
     private void parseLine(String line) {
@@ -55,12 +54,12 @@ public class LexerConfigParser {
             return;
         }
 
-        if (line.startsWith("{")){
+        if (line.startsWith("{")) {
             parsingHeaders = true;
             return;
         }
 
-        if (line.startsWith("}")){
+        if (line.startsWith("}")) {
             parsingHeaders = false;
             return;
         }
@@ -82,37 +81,50 @@ public class LexerConfigParser {
             }
         } else {
             if (firstTokenRule) {
-                Pattern tokenPattern = Pattern.compile("\\s*([a-zA-Z0-9'\\[\\]'-]+)\\s*\\{\\s*return\\s+(\\w+)\\s*\\}");
-                Matcher matcher = tokenPattern.matcher(line);
-                if (matcher.matches()) {
-                    String name = matcher.group(1);
-                    String token = matcher.group(2);
-                    tokenDefinitions.put(name, token);
-                }
+                // Primer bloque de reglas de tokens, puede ser con regex o variable
+                Pattern tokenPattern = Pattern.compile("\\s*(\\S+)\\s*\\{\\s*return\\s+(\\w+)\\s*\\}");
+                match(line, tokenPattern);
                 firstTokenRule = false;
             }
+
             // Modo de lectura de tokens
-            Pattern tokenPattern = Pattern.compile("\\|\\s*([a-zA-Z0-9'\\[\\]'-]+)\\s*\\{\\s*return\\s+(\\w+)\\s*\\}");
-            Matcher matcher = tokenPattern.matcher(line);
-            if (matcher.matches()) {
-                String name = matcher.group(1);
-                String token = matcher.group(2);
+            Pattern tokenPattern = Pattern.compile("\\|\\s*(\\S+)\\s*\\{\\s*return\\s+(\\w+)\\s*\\}");
+            match(line, tokenPattern);
+        }
+    }
+
+    private void match(String line, Pattern tokenPattern) {
+        Matcher matcher = tokenPattern.matcher(line);
+        if (matcher.matches()) {
+            String name = matcher.group(1);
+            String token = matcher.group(2);
+
+            if (regexDefinitions.containsKey(name)) {
                 tokenDefinitions.put(name, token);
+            }
+            else{
+                regexToTokenMap.put(name, token);
             }
         }
     }
 
     // Reemplazar las referencias de regex en las expresiones regulares
     private void replaceReferences() {
+        // Iteramos sobre las definiciones de regex
         for (Map.Entry<String, String> entry : regexDefinitions.entrySet()) {
             String value = entry.getValue();
+
             // Sustituir las referencias a otras expresiones regulares por su valor correspondiente
             for (Map.Entry<String, String> replacement : regexDefinitions.entrySet()) {
+                // Utilizamos una expresión regular para hacer el reemplazo de las referencias
                 value = value.replaceAll("\\b" + replacement.getKey() + "\\b", replacement.getValue());
             }
+
+            // Actualizamos la definición de la regex con el valor ya resuelto
             regexDefinitions.put(entry.getKey(), value);
         }
     }
+
 
     // Mapear las expresiones regulares a los tokens correspondientes
     private void mapRegexToTokens() {
@@ -133,14 +145,15 @@ public class LexerConfigParser {
         LexerConfigParser parser = new LexerConfigParser();
 
         try {
-
             Map<String, Object> result = parser.parseLexerConfig("lexer.yal");
 
+            // Imprimir los encabezados
             List<String> headers = (List<String>) result.get("headers");
             System.out.println("Encabezados:");
             for (String header : headers) {
                 System.out.println(header);
             }
+
             // Obtener el mapeo de regex a tokens
             Map<String, String> regexToTokenMap = (Map<String, String>) result.get("regexToTokenMap");
             System.out.println("\nMapeo de Regex a Tokens:");
@@ -148,8 +161,10 @@ public class LexerConfigParser {
                 System.out.println(entry.getKey() + " , " + entry.getValue());
             }
 
+
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
+
 }
