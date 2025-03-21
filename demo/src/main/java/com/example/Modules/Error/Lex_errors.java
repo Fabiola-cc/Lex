@@ -14,6 +14,6 @@ public class Lex_errors extends Exception {
 
     @Override
     public String toString() {
-        return "Error léxico en la línea " + line + ", en el caracter " + char_num + "\n\t:" + errorMessage;
+        return "Error léxico en la línea " + line + ", (caracter " + char_num + ")\n:" + errorMessage;
     }
 }
