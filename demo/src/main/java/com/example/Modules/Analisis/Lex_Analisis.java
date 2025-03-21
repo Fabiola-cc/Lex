@@ -36,15 +36,24 @@ public class Lex_Analisis {
             System.err.println("Error al procesar el archivo: " + e.getMessage());
         }
     }
-    
+
     public List<String> processFile(String filename) throws IOException {
         characters.clear();
         tokens_final.clear();
         
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
+            boolean firstLine = true;
             
             while ((line = reader.readLine()) != null) {
+                // Agregar un carácter de nueva línea antes de cada línea excepto la primera
+                if (!firstLine) {
+                    characters.add("\n");
+                } else {
+                    firstLine = false;
+                }
+                
+                // Agregar caracteres de la línea
                 for (int i = 0; i < line.length(); i++) {
                     characters.add(String.valueOf(line.charAt(i)));
                 }
@@ -52,7 +61,6 @@ public class Lex_Analisis {
         }
         
         comprobar_en_afd(characters);
-
         return characters;
     }
     
@@ -60,33 +68,77 @@ public class Lex_Analisis {
         List<Integer> posiciones_de_tokens = new ArrayList<>();
         List<String> afd_tokens = afd.getAlphabet();
         
+        // Preparar posiciones de tokens
         for (String token : afd.getTokens()) {
             int el_indek_del_token = afd_tokens.indexOf(token);
             posiciones_de_tokens.add(el_indek_del_token);
         }
         
-        for (String elem : lista_de_caracteres) {
-            int lugar_donde_esta_en_Alfabeto = afd.getAlphabet().indexOf(elem.toString());
-            String estado_donde_estamos = afd.getInitial_state();            
-            List<String> transiciones = afd.getTransitions_table().get(estado_donde_estamos);
+        int i = 0;
+        while (i < lista_de_caracteres.size()) {
+            // Valores para el token actual
+            String estado_actual = afd.getInitial_state();
+            StringBuilder lexema = new StringBuilder();
+            String tipo_token = null;
+            int longitud_maxima = 0;
             
-            if (transiciones.get(lugar_donde_esta_en_Alfabeto) != null) {
-                String nuevo_estado = transiciones.get(lugar_donde_esta_en_Alfabeto);
-        
-                if (nuevo_estado != null && !nuevo_estado.isEmpty()) {
-                    estado_donde_estamos = nuevo_estado;
-                    transiciones = afd.getTransitions_table().get(estado_donde_estamos);
-                    
-                    for (int token : posiciones_de_tokens) {
-                        String nuevo_estado_2 = transiciones.get(token);   
+            // Manejar saltos de línea explícitamente
+            if (lista_de_caracteres.get(i).equals("\n")) {
+                // Simplemente saltamos el carácter de nueva línea
+                i++;
+                continue;
+            }
+            
+            // Intentar construir el token más largo posible
+            int j = i;
+            while (j < lista_de_caracteres.size()) {
+                String caracter = lista_de_caracteres.get(j);
+                
+                // Detener el análisis si encontramos un carácter de nueva línea
+                if (caracter.equals("\n")) {
+                    break;
+                }
+                
+                int indice_caracter = afd.getAlphabet().indexOf(caracter);
+                
+                // Si el carácter no está en el alfabeto, terminamos
+                if (indice_caracter == -1) break;
+                
+                List<String> transiciones = afd.getTransitions_table().get(estado_actual);
+                if (transiciones == null) break;
+                
+                String nuevo_estado = transiciones.get(indice_caracter);
+                
+                // Si no hay transición, terminamos
+                if (nuevo_estado == null || nuevo_estado.isEmpty()) break;
+                
+                // Avanzamos al nuevo estado
+                estado_actual = nuevo_estado;
+                lexema.append(caracter);
+                j++;
+                
+                // Verificar si estamos en un estado de aceptación
+                for (int k = 0; k < posiciones_de_tokens.size(); k++) {
+                    int posicion_token = posiciones_de_tokens.get(k);
+                    List<String> trans = afd.getTransitions_table().get(estado_actual);
+                    if (trans != null && posicion_token < trans.size()) {
+                        String estado_siguiente = trans.get(posicion_token);
                         
-                        for (String aceptace : afd.getAcceptance_states()) {
-                            if (nuevo_estado_2 == aceptace) {
-                                tokens_final.add(new Token(elem, afd_tokens.get(token)));
-                            }
-                        }                        
+                        if (afd.getAcceptance_states().contains(estado_siguiente)) {
+                            tipo_token = afd_tokens.get(posicion_token);
+                            longitud_maxima = j - i;
+                        }
                     }
                 }
+            }
+            
+            // Si encontramos un token válido, lo agregamos
+            if (longitud_maxima > 0) {
+                tokens_final.add(new Token(lexema.substring(0, longitud_maxima), tipo_token));
+                i += longitud_maxima;
+            } else {
+                // Si no encontramos un token válido, avanzamos un carácter
+                i++;
             }
         }
     }
