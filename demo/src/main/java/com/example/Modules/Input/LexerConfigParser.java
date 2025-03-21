@@ -1,6 +1,5 @@
 package com.example.Modules.Input;
 
-import javax.sound.midi.Soundbank;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
@@ -15,7 +14,7 @@ public class LexerConfigParser {
     private boolean parsingTokens = false;
     private boolean firstTokenRule = true;
 
-    //Funcion a Exportar a Main
+    // Funcion a Exportar a Main
     public Map<String, Object> parseLexerConfig(String filename) throws IOException {
         readFile(filename);
 
@@ -47,7 +46,8 @@ public class LexerConfigParser {
     }
 
     private void parseLine(String line) {
-        if (line.isEmpty()) return; // Ignorar líneas vacías
+        if (line.isEmpty())
+            return; // Ignorar líneas vacías
 
         if (line.startsWith("rule gettoken =")) {
             parsingTokens = true; // Cambiamos al modo de lectura de tokens
@@ -101,8 +101,7 @@ public class LexerConfigParser {
 
             if (regexDefinitions.containsKey(name)) {
                 tokenDefinitions.put(name, token);
-            }
-            else{
+            } else {
                 regexToTokenMap.put(name, token);
             }
         }
@@ -114,7 +113,8 @@ public class LexerConfigParser {
         for (Map.Entry<String, String> entry : regexDefinitions.entrySet()) {
             String value = entry.getValue();
 
-            // Sustituir las referencias a otras expresiones regulares por su valor correspondiente
+            // Sustituir las referencias a otras expresiones regulares por su valor
+            // correspondiente
             for (Map.Entry<String, String> replacement : regexDefinitions.entrySet()) {
                 // Utilizamos una expresión regular para hacer el reemplazo de las referencias
                 value = value.replaceAll("\\b" + replacement.getKey() + "\\b", replacement.getValue());
@@ -124,7 +124,6 @@ public class LexerConfigParser {
             regexDefinitions.put(entry.getKey(), value);
         }
     }
-
 
     // Mapear las expresiones regulares a los tokens correspondientes
     private void mapRegexToTokens() {
@@ -141,6 +140,7 @@ public class LexerConfigParser {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         LexerConfigParser parser = new LexerConfigParser();
 
@@ -160,7 +160,6 @@ public class LexerConfigParser {
             for (Map.Entry<String, String> entry : regexToTokenMap.entrySet()) {
                 System.out.println(entry.getKey() + " , " + entry.getValue());
             }
-
 
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());

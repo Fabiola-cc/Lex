@@ -5,7 +5,7 @@ import java.util.*;
 import com.example.models.RegexToken;
 
 public class ShuntingYard {
-    private static final Set<String> OPERATORS = Set.of("|", "*", "‧");
+    // private static final Set<String> OPERATORS = Set.of("|", "*", "‧");
 
     private static final Map<String, Integer> PRECEDENCE = Map.of(
             "|", 1, // Unión

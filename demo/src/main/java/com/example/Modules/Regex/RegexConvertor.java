@@ -1,7 +1,6 @@
 package com.example.Modules.Regex;
 
 import java.util.*;
-import java.util.regex.*;
 
 public class RegexConvertor {
     private static final Set<String> OPERATORS = Set.of("|", "*", "+", "(", ")", "[", "]", "#", "");
@@ -57,7 +56,6 @@ public class RegexConvertor {
         regexToTokenMap.put("['a'-'z''A'-'Z']#['a'-'b']'['", "INDENT");
         regexToTokenMap.put("' '|'\\t'", "WHITESPACE");
         regexToTokenMap.put("'t''a''m''a''r''i'", "IDENTIFIER");
-
 
         Map<String, String> processedRegexMap = convertRegexMap(regexToTokenMap);
         System.out.println("Mapa procesado: " + processedRegexMap);
