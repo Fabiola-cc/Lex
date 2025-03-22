@@ -1,4 +1,8 @@
+#internal files
+demo/target/
 target/
+bin/
+.vscode/
 
 # Compiled class file
 *.class
@@ -25,7 +29,6 @@ target/
 hs_err_pid*
 replay_pid*
 
-.vscode/
 ./prueba.txt
 prueba.txt
 ./demo/src/main/java/com/example/prueba.java
