@@ -1,6 +1,8 @@
 package com.example;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +12,6 @@ import com.example.Drawings.GraphVizAFD;
 import com.example.Modules.AFD.AFDMinimizador;
 import com.example.Modules.AFD.Calculate_tree;
 import com.example.Modules.AFD.Direct_AFD;
-import com.example.Modules.Analisis.Lex_Analisis;
 import com.example.models.AFD;
 import com.example.models.RegexToken;
 import com.example.models.node;
@@ -85,8 +86,15 @@ public class Main {
         drawerAfdmini.draw();
         System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
 
-        System.out.println("\nStep 5: Analizar léxicamente el código dado");
-        Lex_Analisis lexer_analisis = new Lex_Analisis(miniAFD, "ejemplo.txt");
-        lexer_analisis.print_tokens();
+        System.out.println("\nStep 5: Crear Analizador léxico");
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("AFD.dat"))) {
+            out.writeObject(miniAFD);
+            System.out.println("AFD guardado correctamente.");
+        } catch (IOException e) {
+            System.err.println("Error al guardar el AFD: " + e.getMessage());
+        }
+
+        JavaFileGenerator.generateFile(headers);
+
     }
 }

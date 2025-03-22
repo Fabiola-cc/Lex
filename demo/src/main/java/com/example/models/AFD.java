@@ -1,11 +1,14 @@
 package com.example.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class AFD {
+public class AFD implements Serializable {
+    private static final long serialVersionUID = 1L; // Asegura la compatibilidad de la serialización
+
     private HashMap<String, List<String>> transitions_table;
     private List<String> states;
     private List<String> alphabet;
