@@ -87,7 +87,8 @@ public class Main {
         System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
 
         System.out.println("\nStep 5: Crear Analizador léxico");
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("AFD.dat"))) {
+        try (ObjectOutputStream out = new ObjectOutputStream(
+                new FileOutputStream("demo/src/main/java/com/example/AFD.dat"))) {
             out.writeObject(miniAFD);
             System.out.println("AFD guardado correctamente.");
         } catch (IOException e) {

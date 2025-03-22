@@ -1,6 +1,8 @@
 package com.example.Modules.Analisis;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,11 +37,12 @@ public class Lex_Analisis {
         characters.clear();
         tokens_final.clear();
 
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filename);
+        File file = new File(filename);
         try {
-            if (inputStream == null) {
+            if (!file.exists()) {
                 throw new FileNotFoundException("No se encontró el archivo: " + filename);
             }
+            InputStream inputStream = new FileInputStream(file);
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
