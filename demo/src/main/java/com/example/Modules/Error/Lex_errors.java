@@ -3,9 +3,9 @@ package com.example.Modules.Error;
 public class Lex_errors extends Exception {
     private String errorMessage;
     private int line;
-    private int char_num;
+    private String char_num;
 
-    public Lex_errors(String errorMessage, int line, int char_num) {
+    public Lex_errors(String errorMessage, int line, String char_num) {
         super(errorMessage);
         this.errorMessage = errorMessage;
         this.line = line;

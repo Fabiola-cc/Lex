@@ -18,7 +18,7 @@ public class Lex_Analisis {
     private AFD afd;
     private String documento;
     private List<Token> tokens_final;
-    private List<String> characters = new ArrayList<>();
+    private List<List<String>> characters = new ArrayList<>();
     private Lex_errors found_error;
 
     public Lex_Analisis(AFD afd_para_analisis, String documento) {
@@ -33,7 +33,7 @@ public class Lex_Analisis {
         }
     }
 
-    public List<String> processFile(String filename) throws IOException {
+    public List<List<String>> processFile(String filename) throws IOException {
         characters.clear();
         tokens_final.clear();
 
@@ -46,20 +46,44 @@ public class Lex_Analisis {
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
-                boolean firstLine = true;
 
                 while ((line = reader.readLine()) != null) {
-                    // Agregar un carácter de nueva línea antes de cada línea excepto la primera
-                    if (!firstLine) {
-                        characters.add("\n");
-                    } else {
-                        firstLine = false;
+                    List<String> actualLine = new ArrayList<>();
+                    boolean firstLine = true;
+
+                    // Agregar explícitamente saltos de línea al inicio de cada una
+                    // (si el alfabeto los tiene)
+                    if (afd.getAlphabet().contains("\n")) {
+                        if (!firstLine) {
+                            actualLine.add("\n");
+                        } else {
+                            firstLine = false;
+                        }
                     }
 
                     // Agregar caracteres de la línea
                     for (int i = 0; i < line.length(); i++) {
-                        characters.add(String.valueOf(line.charAt(i)));
+
+                        if (line.charAt(i) == '\\') {
+                            switch (line.charAt(i + 1)) {
+                                case 'n':
+                                    actualLine.add("\n");
+                                    i++;
+                                    break;
+                                case 't':
+                                    actualLine.add("\n");
+                                    i++;
+                                    break;
+                                default:
+                                    actualLine.add(String.valueOf(line.charAt(i)));
+                                    break;
+                            }
+                        } else {
+                            actualLine.add(String.valueOf(line.charAt(i)));
+                        }
                     }
+
+                    characters.add(actualLine);
                 }
             }
         } catch (IOException e) {
@@ -70,15 +94,14 @@ public class Lex_Analisis {
         return characters;
     }
 
-    public void comprobar_en_afd(List<String> lista_de_caracteres) {
+    public void comprobar_en_afd(List<List<String>> lista_de_caracteres) {
         List<Integer> posiciones_de_tokens = new ArrayList<>();
         List<String> afd_tokens = afd.getAlphabet();
-        int line = 1;
 
         if (afd_tokens == null | afd.getTokens() == null | afd.getInitial_state() == null) {
             found_error = new Lex_errors(
                     "Error interno, el analizador léxico no tiene la información de los símbolos a usar",
-                    line, 0);
+                    1, "");
             return;
         }
 
@@ -88,39 +111,27 @@ public class Lex_Analisis {
             posiciones_de_tokens.add(el_indek_del_token);
         }
 
-        int i = 0;
-        while (i < lista_de_caracteres.size()) {
+        int line = 0;
+        int j = 0;
+        while (line < lista_de_caracteres.size()) {
             // Valores para el token actual
             String estado_actual = afd.getInitial_state();
             StringBuilder lexema = new StringBuilder();
             String tipo_token = null;
             int longitud_maxima = 0;
 
-            // Manejar saltos de línea explícitamente
-            if (lista_de_caracteres.get(i).equals("\n")) {
-                // Simplemente saltamos el carácter de nueva línea
-                i++;
-                line++;
-                continue;
-            }
-
             // Intentar construir el token más largo posible
-            int j = i;
-            while (j < lista_de_caracteres.size()) {
-                String caracter = lista_de_caracteres.get(j);
+            List<String> actualLine = lista_de_caracteres.get(line);
+            while (j < actualLine.size()) {
+                String caracter = actualLine.get(j);
 
-                // Detener el análisis si encontramos un carácter de nueva línea
-                if (caracter.equals("\n")) {
-                    break;
-                }
-
-                int indice_caracter = afd.getAlphabet().indexOf(caracter);
+                int indice_caracter = afd_tokens.indexOf(caracter);
 
                 // Si el carácter no está en el alfabeto, terminamos
                 if (indice_caracter == -1) {
                     found_error = new Lex_errors(
                             "No es un caracter válido",
-                            line, i);
+                            line, actualLine.get(j));
                     break;
                 }
 
@@ -142,13 +153,14 @@ public class Lex_Analisis {
                 // Verificar si estamos en un estado de aceptación
                 for (int k = 0; k < posiciones_de_tokens.size(); k++) {
                     int posicion_token = posiciones_de_tokens.get(k);
-                    List<String> trans = afd.getTransitions_table().get(estado_actual);
-                    if (trans != null && posicion_token < trans.size()) {
+                    List<String> trans = afd.getTransitions_table().get(estado_actual); // Transiciones desde este
+                                                                                        // caracter
+                    if (trans != null && posicion_token < trans.size()) { // Si hay una posible transición
                         String estado_siguiente = trans.get(posicion_token);
 
                         if (afd.getAcceptance_states().contains(estado_siguiente)) {
                             tipo_token = afd_tokens.get(posicion_token);
-                            longitud_maxima = j - i;
+                            longitud_maxima++;
                         }
                     }
                 }
@@ -157,9 +169,12 @@ public class Lex_Analisis {
             // Si encontramos un token válido, lo agregamos
             if (longitud_maxima > 0) {
                 tokens_final.add(new Token(lexema.substring(0, longitud_maxima), tipo_token));
-                i += longitud_maxima;
+                if (j == actualLine.size()) { // Si se ha completado la línea
+                    line++;
+                    j = 0;
+                }
             } else {
-                found_error = new Lex_errors("No se encontró un token", line, (i + 1));
+                found_error = new Lex_errors("No se encontró un token", line, actualLine.get(j));
                 break;
             }
         }
@@ -180,7 +195,7 @@ public class Lex_Analisis {
      * 
      * @return Lista de caracteres
      */
-    public List<String> getCharacters() {
+    public List<List<String>> getCharacters() {
         return characters;
     }
 
@@ -198,8 +213,10 @@ public class Lex_Analisis {
      */
     public void printCharacters() {
         System.out.println("Caracteres leídos del documento '" + documento + "':");
-        for (String c : characters) {
-            System.out.print(c + ", ");
+        for (List<String> line : characters) {
+            for (String c : line) {
+                System.out.print(c + ", ");
+            }
         }
         System.out.println();
     }
