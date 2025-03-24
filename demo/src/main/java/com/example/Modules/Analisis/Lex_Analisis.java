@@ -161,6 +161,7 @@ public class Lex_Analisis {
                         if (afd.getAcceptance_states().contains(estado_siguiente)) {
                             tipo_token = afd_tokens.get(posicion_token);
                             longitud_maxima++;
+                            break;
                         }
                     }
                 }

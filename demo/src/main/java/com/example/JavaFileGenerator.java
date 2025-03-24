@@ -12,18 +12,12 @@ public class JavaFileGenerator {
 
         // Código fuente en forma de String
         StringBuilder javaCode = new StringBuilder();
-
+        javaCode.append("package com.example;\n\n");
         for (String header : headers) {
             javaCode.append(header).append("\n");
         }
 
-        javaCode.append("package com.example;\n\n")
-                .append("import com.example.Modules.Analisis.Lex_Analisis;\n")
-                .append("import com.example.models.AFD;\n")
-                .append("import java.io.FileInputStream;\n")
-                .append("import java.io.ObjectInputStream;\n")
-                .append("import java.io.IOException;\n\n")
-                .append("public class ").append(className).append(" {\n")
+        javaCode.append("\npublic class ").append(className).append(" {\n")
                 .append("    public static void main(String[] args) throws IOException {\n")
                 .append("        if (args.length == 0) {\n")
                 .append("            System.out.println(\"Uso: java ").append(className)

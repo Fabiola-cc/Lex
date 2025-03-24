@@ -1,11 +1,12 @@
 package com.example;
 
+// Estos imports son parte de la lógica de compilación
+// No deben quitarse para el buen funcionamiento
 import com.example.Modules.Analisis.Lex_Analisis;
 import com.example.models.AFD;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-
 public class Yalex {
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {

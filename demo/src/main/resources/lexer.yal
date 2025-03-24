@@ -1,5 +1,11 @@
 {
-    import com.duarte.lexer.returnToken;
+    // Estos imports son parte de la lógica de compilación
+    // No deben quitarse para el buen funcionamiento
+    import com.example.Modules.Analisis.Lex_Analisis;
+    import com.example.models.AFD;
+    import java.io.FileInputStream;
+    import java.io.ObjectInputStream;
+    import java.io.IOException;
 }
 
 let digit = ['0'-'9']
@@ -8,11 +14,12 @@ let blanks = ' '|'\t'
 
 rule gettoken =
 blanks { return lexbuf }
-| '\n' { return EOL }
+| ';' { return EOL }
 | '+' { return PLUS }
 | '-' { return MINUS }
 | '*' { return TIMES }
 | '/' { return DIV }
 | '(' { return LPAREN }
 | ')' { return RPAREN }
+| digit { return DIGIT}
 | number { return NUMBER }
