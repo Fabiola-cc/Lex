@@ -46,10 +46,10 @@ public class Lex_Analisis {
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
+                boolean firstLine = true;
 
                 while ((line = reader.readLine()) != null) {
                     List<String> actualLine = new ArrayList<>();
-                    boolean firstLine = true;
 
                     // Agregar explícitamente saltos de línea al inicio de cada una
                     // (si el alfabeto los tiene)
@@ -175,7 +175,13 @@ public class Lex_Analisis {
                     j = 0;
                 }
             } else {
-                found_error = new Lex_errors("No se encontró un token", line, actualLine.get(j));
+                if (!actualLine.isEmpty()) {
+                    found_error = new Lex_errors("No se encontró un token", line + 1, actualLine.get(j));
+                } else {
+                    found_error = new Lex_errors(
+                            "No se encontraron caracteres nada\nRevisa la integración de saltos de línea en tu configuración",
+                            line + 1, "");
+                }
                 break;
             }
         }
