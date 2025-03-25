@@ -12,21 +12,19 @@ let digit = ['0'-'9']
 let number = digit+
 let blanks = ' '|'\t'
 let word = ['A'-'Z''a'-'z']+
-let comment = (word|digit|' '|punct)+
-let variable = (word'_'number)+
+let comment = '''word'''
+let variable = word'_'number
 let punct = '?'|'!'|'.'
-let singleString = '''comment'''
-let doubleString = '"'comment'"'
-let finalString = singleString|doubleString
+let singleString = ('''|'"')(word|digit|' '|punct)*('''|'"')
 let menor = '>'
+let menorigual = menor'='
 let mayor = '<'
-let igual = '='
-let numeral = '#'
-let menorigual = (menor)(igual)
-let mayorigual = (mayor)(igual)
+let mayorigual = mayor'='
+
 let multilineCommentStart = '/''*'(comment|blanks)+
 let multilineCommentEnd = (comment|blanks)+'*''/'
-let singlelineComment = (numeral)(comment)
+
+
 
 rule gettoken =
 blanks { return lexbuf }
@@ -36,22 +34,23 @@ blanks { return lexbuf }
 | '*' { return TIMES }
 | '/' { return DIV }
 | '(' { return LPAREN }
+| '.' { return POINT }
+| ',' { return COMA }
 | ')' { return RPAREN }
-| '{' { return LHOOK }
-| '}' { return RHOOK }
+| '#' { return NUMERAL }
 | '=' { return EQUALS }
-| '&' { return APPERSAND }
-| ';' { return EOF }
+| digit { return DIGIT }
+| number { return NUMBER }
+| singleString { return COMMENT }
+| variable { return VARIABLE }
 | word { return WORD }
+| '&' { return APPERSAND }
 | menor { return LESS }
 | mayor { return MORE }
 | menorigual { return LESSEQ }
 | mayorigual { return MOREEQ }
-| digit { return DIGIT }
-| number { return NUMBER }
-| variable { return VARIABLE }
-| finalString  { return STRING }
-| menorigual { return LESSIQUAL }
-| multilineCommentStart { return MULTICOMMENTSTART }
-| multilineCommentEnd { return MULTICOMMENTEND }
-| singlelineComment { return SINGLECOMMENT }
+| '{' { return LHOOK }
+| '}' { return RHOOK }
+| ';' { return EOF }
+| '[' { return LBRAKETS }
+| ']' { return RBRAKETS }
