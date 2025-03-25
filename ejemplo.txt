@@ -7,10 +7,10 @@ if (x >= 100 && y < 50) {
     resultado = x - y / 3;
 }
 
-/* Comentario multilínea
-   con varias líneas de texto */
+/* Comentario multilinea
+   con varias lineas de texto */
 
-# Comentario de una sola línea
+# Comentario de una sola linea
 
 let precio = 49.99;
 let descuento = precio * 0.10;
