@@ -11,15 +11,27 @@
 let digit = ['0'-'9']
 let number = digit+
 let blanks = ' '|'\t'
+let word = ['A'-'Z''a'-'z']+
+let comment = '''word'''
+let variable = word'_'number
+let punct = '?'|'!'|'.'
+let singleString = '''(word|digit|' '|punct)*'''
+let menor = '>'
+let menorigual = menor'='
 
 rule gettoken =
 blanks { return lexbuf }
-| ';' { return EOL }
+| '\n' { return EOL }
 | '+' { return PLUS }
 | '-' { return MINUS }
 | '*' { return TIMES }
 | '/' { return DIV }
 | '(' { return LPAREN }
 | ')' { return RPAREN }
-| digit { return DIGIT}
+| '=' { return EQUALS }
+| digit { return DIGIT }
 | number { return NUMBER }
+| comment { return COMMENT }
+| variable { return VARIABLE }
+| word { return WORD }
+| menorigual { return LESSIQUAL }
