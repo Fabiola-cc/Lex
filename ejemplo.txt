@@ -1,5 +1,5 @@
 12345 + 67890 * (42 / 6) - 99 variable_1
-variable_1 = 'Hello World!'
+variable_1 = "Hello World!"
 if (x >= 100 && y < 50) {
     resultado = x + y * 2;
 } else {
@@ -16,10 +16,3 @@ let descuento = precio * 0.10;
 let total = precio - descuento;
 
 funcion_cool(3, 4, "texto dentro de función");
-
-[a-z]  [A-Z]  [0-9]  ['a'-'z']  ['0'-'9']  
-(^[0-9])  ([a-z]#[p-t])
-
-// Caracteres especiales y escape
-\newline \tab \backslash \\ \" \' \?
-!@#$%^&*()-=_+[]{}|;:'",.<>/?
