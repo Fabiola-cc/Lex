@@ -1,4 +1,4 @@
-package com.example;
+package com.example.Mains;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -6,20 +6,18 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
-import com.example.Modules.Input.LexerConfigParser;
-import com.example.Drawings.Draw_Tree;
-import com.example.Drawings.GraphVizAFD;
+import com.example.JavaFileGenerator;
 import com.example.Modules.AFD.AFDMinimizador;
 import com.example.Modules.AFD.Calculate_tree;
 import com.example.Modules.AFD.Direct_AFD;
-import com.example.models.AFD;
-import com.example.models.RegexToken;
-import com.example.models.node;
-
+import com.example.Modules.Input.LexerConfigParser;
 import static com.example.Modules.Regex.RegexConvertor.convertRegexMap;
 import static com.example.Modules.Regex.RegexGenerator.addImplicitConcatenation;
 import static com.example.Modules.Regex.RegexGenerator.generateCombinedRegex;
 import static com.example.Modules.Regex.ShuntingYard.shuntingYard;
+import com.example.models.AFD;
+import com.example.models.RegexToken;
+import com.example.models.node;
 
 public class Main {
     @SuppressWarnings("unchecked")
@@ -29,7 +27,6 @@ public class Main {
         Map<String, Object> result = parser.parseLexerConfig("lexer.yal");
         List<String> headers = (List<String>) result.get("headers");
         Map<String, String> regexToTokenMap = (Map<String, String>) result.get("regexToTokenMap");
-
         Map<String, String> processedRegexMap = convertRegexMap(regexToTokenMap);
         List<RegexToken> combined = generateCombinedRegex(processedRegexMap);
         List<RegexToken> infix = addImplicitConcatenation(combined);
@@ -58,10 +55,6 @@ public class Main {
         }
         System.out.println();
         System.out.println("\n Generando imagen de árbol...");
-        // Create image of tree
-        Draw_Tree drawer = new Draw_Tree();
-        drawer.visualizeTree(treeNodes);
-        System.out.println("Puedes ver tu árbol como 'Syntax_Tree.png' en la carpeta de resultados en Drawings");
 
         // Step 4: Create Direct AFD from syntax tree
         System.out.println("\nStep 3: Generar el AFD");
@@ -75,18 +68,6 @@ public class Main {
 
         AFDMinimizador minimizer = new AFDMinimizador(model);
         AFD miniAFD = minimizer.minimize();
-
-        System.out.println("\n Generando imagen de AFD...");
-        GraphVizAFD drawerAfd = new GraphVizAFD(model,
-                "demo\\src\\main\\java\\com\\example\\Drawings\\Results\\AFDimage.png");
-        drawerAfd.draw();
-        System.out.println("Puedes ver tu AFD como 'AFDimage.png' en la carpeta de resultados en Drawings");
-
-        System.out.println("\n Generando imagen de AFD minimizado...");
-        GraphVizAFD drawerAfdmini = new GraphVizAFD(model,
-                "demo\\src\\main\\java\\com\\example\\Drawings\\Results\\MiniAFDimage.png");
-        drawerAfdmini.draw();
-        System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png' en la carpeta de resultados en Drawings");
 
         System.out.println("\nStep 5: Crear Analizador léxico");
         try (ObjectOutputStream out = new ObjectOutputStream(
