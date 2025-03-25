@@ -1,25 +1,19 @@
-12345 + 67890 * (42 / 6) - 99 variable_1
+12345 + 67890 * (42 / 6) - 99 
 variable_1 = 'Hello World!'
+variable_2 = "PRUEBA SI?"
 if (x >= 100 && y < 50) {
     resultado = x + y * 2;
 } else {
     resultado = x - y / 3;
 }
 
-/* Comentario multilínea
-   con varias líneas de texto */
+/* Comentario multilinea
+   con varias lineas de texto */
 
-# Comentario de una sola línea
+# Comentario de una sola linea
 
 let precio = 49.99;
 let descuento = precio * 0.10;
 let total = precio - descuento;
 
 funcion_cool(3, 4, "texto dentro de función");
-
-[a-z]  [A-Z]  [0-9]  ['a'-'z']  ['0'-'9']  
-(^[0-9])  ([a-z]#[p-t])
-
-// Caracteres especiales y escape
-\newline \tab \backslash \\ \" \' \?
-!@#$%^&*()-=_+[]{}|;:'",.<>/?

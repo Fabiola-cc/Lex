@@ -1,5 +1,10 @@
 package com.example.Modules.Regex;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.example.models.RegexToken;
 
@@ -398,7 +403,7 @@ public class RegexGenerator {
     public static void main(String[] args) {
         Map<String, String> processedMap = new HashMap<>();
         processedMap.put("\\++", "PLUS");
-        processedMap.put("[a-z]#[a-b]", "INDENT");
+        processedMap.put("([A-Za-z]+|[0-9]| |?|!|.)+", "INDENT");
         processedMap.put(" |'\\t'", "WHITESPACE");
         processedMap.put("tamari", "IDENTIFIER");
 
