@@ -102,6 +102,7 @@ Este sistema toma expresiones regulares y reglas léxicas definidas por el usuar
 
 ### Ejemplo
 
+#### lexer.yal
 ```java
 {
     // Estos imports son parte de la lógica de compilación
