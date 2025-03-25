@@ -8,7 +8,7 @@ public class JavaFileGenerator {
     public static void generateFile(List<String> headers) {
         String className = "Yalex"; // Nombre de la clase generada
         String javaOutputPath = "demo/src/main/java/com/example/" + className + ".java"; // Archivo .java
-        String batOutputPath = "run.bat"; // Archivo .bat
+        String batOutputPath = "../run.bat"; // Archivo .bat
 
         // Código fuente en forma de String
         StringBuilder javaCode = new StringBuilder();
