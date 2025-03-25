@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class RegexConvertor {
-    private static final Set<String> OPERATORS = Set.of("|", "*", "+", "(", ")", "[", "]", "#", "", "_");
+    private static final Set<String> OPERATORS = Set.of("|", "*", "+", "(", ")", "[", "]", "#", "", "_", "?");
 
     public static Map<String, String> convertRegexMap(Map<String, String> regexToTokenMap) {
         Map<String, String> processedMap = new LinkedHashMap<>();
@@ -68,7 +68,7 @@ public class RegexConvertor {
 
     public static void main(String[] args) {
         Map<String, String> regexToTokenMap = new LinkedHashMap<>();
-        regexToTokenMap.put("['a'-'z''A'-'Z']+'_'['0'-'9']+", "PLUS");
+        regexToTokenMap.put("'\"'(['A'-'Z''a'-'z']+|['0'-'9']|' '|'?'|'!'|'.')+'\"'", "PLUS");
         regexToTokenMap.put("['a'-'z''A'-'Z']#['a'-'b']'['", "INDENT");
         regexToTokenMap.put("' '|'\\t'", "WHITESPACE");
         regexToTokenMap.put("'H'", "IDENTIFIER");
