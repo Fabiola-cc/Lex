@@ -1,2 +1,10 @@
-2+22
-3+4
+12345 + 67890 * (42 / 6) - 99 variable_1
+variable_1 = "Hello World!"
+if (x >= 100 && y < 50) {
+    resultado = x + y * 2;
+} else {
+    resultado = x - y / 3;
+}
+
+/* Comentario multilínea
+   con varias líneas de texto /

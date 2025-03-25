@@ -1,7 +1,7 @@
 {
     // Estos imports son parte de la lógica de compilación
     // No deben quitarse para el buen funcionamiento
-    import com.example.Modules.Analisis.Lex_Analisis;
+    import com.example.Modules.Analisis.LexAnalisis;
     import com.example.models.AFD;
     import java.io.FileInputStream;
     import java.io.ObjectInputStream;
@@ -12,12 +12,15 @@ let digit = ['0'-'9']
 let number = digit+
 let blanks = ' '|'\t'
 let word = ['A'-'Z''a'-'z']+
-let comment = '''word'''
-let variable = word'_'number
+let comment = '"'word'"'
+let variable = word''number
 let punct = '?'|'!'|'.'
-let singleString = '''(word|digit|' '|punct)*'''
+let singleString = '''(word|digit|' '|punct)+'''
 let menor = '>'
-let menorigual = menor'='
+let mayor = '<'
+let igual = '='
+let menorigual = (menor)(igual)
+let mayorigual = (mayor)(igual)
 
 rule gettoken =
 blanks { return lexbuf }
@@ -31,7 +34,7 @@ blanks { return lexbuf }
 | '=' { return EQUALS }
 | digit { return DIGIT }
 | number { return NUMBER }
-| comment { return COMMENT }
+| singleString { return COMMENT }
 | variable { return VARIABLE }
 | word { return WORD }
 | menorigual { return LESSIQUAL }
