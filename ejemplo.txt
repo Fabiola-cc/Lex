@@ -1,5 +1,6 @@
-12345 + 67890 * (42 / 6) - 99 variable_1
-variable_1 = "Hello World!"
+12345 + 67890 * (42 / 6) - 99 
+variable_1 = 'Hello World!'
+variable_2 = "PRUEBA SI?"
 if (x >= 100 && y < 50) {
     resultado = x + y * 2;
 } else {
