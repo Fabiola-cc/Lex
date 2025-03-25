@@ -61,7 +61,7 @@ public class Main {
         // Create image of tree
         Draw_Tree drawer = new Draw_Tree();
         drawer.visualizeTree(treeNodes);
-        System.out.println("Puedes ver tu árbol como 'Syntax_Tree.png'");
+        System.out.println("Puedes ver tu árbol como 'Syntax_Tree.png' en la carpeta de resultados en Drawings");
 
         // Step 4: Create Direct AFD from syntax tree
         System.out.println("\nStep 3: Generar el AFD");
@@ -77,14 +77,16 @@ public class Main {
         AFD miniAFD = minimizer.minimize();
 
         System.out.println("\n Generando imagen de AFD...");
-        GraphVizAFD drawerAfd = new GraphVizAFD(model, "AFDimage.png");
+        GraphVizAFD drawerAfd = new GraphVizAFD(model,
+                "demo\\src\\main\\java\\com\\example\\Drawings\\Results\\AFDimage.png");
         drawerAfd.draw();
-        System.out.println("Puedes ver tu AFD como 'AFDimage.png'");
+        System.out.println("Puedes ver tu AFD como 'AFDimage.png' en la carpeta de resultados en Drawings");
 
         System.out.println("\n Generando imagen de AFD minimizado...");
-        GraphVizAFD drawerAfdmini = new GraphVizAFD(model, "MiniAFDimage.png");
+        GraphVizAFD drawerAfdmini = new GraphVizAFD(model,
+                "demo\\src\\main\\java\\com\\example\\Drawings\\Results\\MiniAFDimage.png");
         drawerAfdmini.draw();
-        System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png'");
+        System.out.println("Puedes ver tu AFD como 'MiniAFDimage.png' en la carpeta de resultados en Drawings");
 
         System.out.println("\nStep 5: Crear Analizador léxico");
         try (ObjectOutputStream out = new ObjectOutputStream(
@@ -96,6 +98,5 @@ public class Main {
         }
 
         JavaFileGenerator.generateFile(headers);
-
     }
 }

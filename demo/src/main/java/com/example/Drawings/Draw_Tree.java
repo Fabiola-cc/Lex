@@ -22,8 +22,7 @@ public class Draw_Tree {
     // Estos son los objetos que se irán modificando para luego crear el árbol
     private final MutableGraph graph;
     private final AtomicInteger nodeCounter;
-    // private static final String OUTPUT_FILENAME = "Syntax_Tree.png";
-    private static final String OUTPUT_FILENAME = "Syntax_Tree" + ".png";
+    private static final String OUTPUT_FILENAME = "demo\\src\\main\\java\\com\\example\\Drawings\\Results\\Syntax_Tree.png";
 
     // Constructor inicializa el grafo y el contador de nodos
     public Draw_Tree() {

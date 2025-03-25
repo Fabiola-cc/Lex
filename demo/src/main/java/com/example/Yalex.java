@@ -7,6 +7,7 @@ import com.example.models.AFD;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
+
 public class Yalex {
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {
