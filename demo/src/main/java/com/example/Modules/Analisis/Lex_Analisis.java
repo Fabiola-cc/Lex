@@ -149,6 +149,7 @@ public class Lex_Analisis {
                 estado_actual = nuevo_estado;
                 lexema.append(caracter);
                 j++;
+                longitud_maxima++;
 
                 // Verificar si estamos en un estado de aceptación
                 for (int k = 0; k < posiciones_de_tokens.size(); k++) {
@@ -160,7 +161,6 @@ public class Lex_Analisis {
 
                         if (afd.getAcceptance_states().contains(estado_siguiente)) {
                             tipo_token = afd_tokens.get(posicion_token);
-                            longitud_maxima++;
                             break;
                         }
                     }
