@@ -33,6 +33,10 @@ public class Lex_Analisis {
         }
     }
 
+    public List<Token> getTokens_final() {
+        return tokens_final;
+    }
+
     public List<List<String>> processFile(String filename) throws IOException {
         characters.clear();
         tokens_final.clear();
