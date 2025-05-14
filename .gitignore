@@ -29,10 +29,6 @@ bin/
 hs_err_pid*
 replay_pid*
 
-./prueba.txt
-prueba.txt
-./demo/src/main/java/com/example/prueba.java
-
-./prueba.
-
-demo/src/main/java/com/example/prueba.java
+# Archivos de configuración de IDEs
+.idea/
+.vscode/
