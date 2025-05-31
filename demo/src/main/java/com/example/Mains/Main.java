@@ -24,7 +24,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         System.out.println("\nStep 1: Obtener la información del documento...");
         LexerConfigParser parser = new LexerConfigParser();
-        Map<String, Object> result = parser.parseLexerConfig("lexer.yal");
+        Map<String, Object> result = parser.parseLexerConfig("demo/src/main/resources/lexer.yal");
         List<String> headers = (List<String>) result.get("headers");
         Map<String, String> regexToTokenMap = (Map<String, String>) result.get("regexToTokenMap");
         Map<String, String> processedRegexMap = convertRegexMap(regexToTokenMap);
